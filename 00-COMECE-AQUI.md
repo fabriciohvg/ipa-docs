@@ -16,42 +16,48 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 01 | `01-roadmap-modelagem.md` | Passo a passo até o modelo pronto | Painel de controle das fases |
 | 02 | `02-glossario-dominio.md` | Vocabulário canônico (termo → significado → entidade) | Sempre que ficar em dúvida sobre um nome |
 | 03 | `03-regras-constitucionais-igreja-local.md` | Regras extraídas da CI, numeradas (RN-XX-00) | Ao implementar validações |
-| 04 | `04-modelo-de-entidades.md` | **v2** — entidades, atributos, invariantes, diagrama ER | Referência central do modelo |
+| 04 | `04-modelo-de-entidades.md` | **v3** — entidades, atributos, invariantes, diagrama ER | Referência central do modelo |
 | 05 | `05-maquinas-de-estado.md` | Ciclos de vida (membro, mandato, carta, relação pastoral) | Ao implementar transições/status |
 | 06 | `06-modulos-e-casos-de-uso.md` | Módulos do app e casos de uso por entidade | Ao fatiar o backlog |
 | 07 | `07-decisoes-em-aberto.md` | Decisões do usuário — **respondido** | Histórico das escolhas |
-| 08 | `08-analise-relatorio-estatistico.md` | Decodificação do formulário CSM-IPB (contrato de saída) | Ao implementar relatórios |
-| 09 | `09-mapeamento-importacao-csv.md` | CSV de origem → modelo, coluna a coluna | Ao construir o importador |
+| 08 | `08-analise-relatorio-estatistico.md` | Estrutura do formulário CSM-IPB ⚠️ *3 ressalvas no topo* | Ao implementar relatórios |
+| 09 | `09-mapeamento-importacao-csv.md` | ⚠️ *parcialmente superado pelo doc 12* | Estratégia de importação |
 | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices | Ao criar as migrations |
 | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo (E1) | **Para começar a codar** |
+| 12 | `12-perfil-dados-csv.md` | **Perfil medido dos 2.622 registros reais** | **Fonte da verdade sobre os dados** |
 
 ### Insumos
 
-- `constituicao-igreja-presbiteriana.md` — fonte da verdade, 152 artigos
-- `relatorio-igreja.pdf` — relatório estatístico oficial 2025 (CSM-IPB 2021 v8.0), já analisado no doc 08
+- `constituicao-igreja-presbiteriana.md` — fonte da verdade jurídica, 152 artigos
+- `membros_rows.csv` — rol atual, 2.622 registros, analisado no doc 12
+- `relatorio-igreja.pdf` — relatório estatístico 2025; usado só para entender a **estrutura** do formulário (os números não valem como validação)
 
 ## Estado atual
 
 - [x] Constituição lida e catalogada
 - [x] Roadmap, glossário, regras constitucionais
-- [x] Modelo de entidades v1 → **v2**
+- [x] Modelo de entidades v1 → v2 → **v3**
 - [x] Máquinas de estado · módulos e casos de uso
-- [x] Decisões do bloco A e B respondidas
-- [x] Relatório estatístico oficial analisado
-- [x] Mapeamento da importação do CSV
-- [x] Schema do banco (MVP)
-- [x] Spec do M1
-- [ ] **Você**: rodar o script de perfilagem do CSV (doc 09 §8) e responder P7–P10
-- [ ] Implementar E1 (migrations 001–004 + importador + rol)
+- [x] Decisões dos blocos A e B respondidas
+- [x] Formulário estatístico decodificado (com ressalvas)
+- [x] **CSV real perfilado — P7, P8, P9 e P10 resolvidas**
+- [x] Schema do banco (MVP) ajustado aos dados reais
+- [x] Spec do M1 com fila de revisão
+- [ ] **Você**: responder P11–P18 (doc 12 §7)
+- [ ] Implementar E1 (migrations 001–005 + importador + rol + fila de revisão)
 
-## Números da IPA (do relatório 2025)
+## Números reais da IPA (do CSV, não do relatório)
 
-1.669 membros (1.404 comungantes · 265 não comungantes) · 9 pastores · 21 presbíteros · 28 diáconos · 2 congregações · 1 ponto de pregação · 3 escolas dominicais.
+**2.622 registros** · 1.777 ativos: 1.125 comungantes · 131 não comungantes · **521 sem categoria**
+21 presbíteros · 13 presbíteros em disponibilidade · 7 diáconos · 2 congregações · 1 ponto de pregação
 
-Isto não é uma igreja pequena — paginação, busca e importação em lote são requisitos desde o primeiro dia.
+**Lacunas conhecidas**: 860 sem sexo · 554 sem categoria · 447 inativos sem data de demissão · 34 nomes duplicados.
+O rol chega sujo, e limpá-lo é trabalho de meses — por isso a fila de revisão é funcionalidade, não relatório.
 
 ## Próxima ação (uma só)
 
-Rode o script do **doc 09, §8** sobre o CSV do rol e me mande a saída. Ele responde de uma vez as pendências P7, P8 e P10 — que são o que falta para o importador ficar pronto.
+Abra `12-perfil-dados-csv.md` e responda **P11, P12 e P14** — as três que travam o importador (o que fazer com os 521 sem categoria, como resolver situação × data de demissão, e o formato do número de rol).
 
-Se estiver sem energia para isso: leia só o `11-spec-m1-rol-de-membros.md`. É o que se transforma em código.
+**P17 é a mais importante estrategicamente**: existe um sistema rodando hoje? Se sim, o novo substitui ou convive? Isso muda o projeto inteiro.
+
+Se estiver sem energia: leia só o §5 do doc 12. São os três problemas de dados em uma página.

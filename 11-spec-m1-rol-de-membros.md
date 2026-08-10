@@ -14,12 +14,14 @@ Manter em dia o rol de membros comungantes e não comungantes da IPA — obriga�
 
 | Fato | Origem | Consequência |
 |---|---|---|
-| 1.669 membros (1.404 comungantes + 265 não comungantes) | Relatório 2025 | Listagem paginada e busca são requisito, não melhoria |
-| +188 comungantes de saldo em 2025 | Relatório 2025 | ~200 admissões/ano: o assistente de admissão é a tela mais usada |
-| **121 das 197 admissões foram por jurisdição** | Relatório 2025 | Jurisdição é o caminho principal, não a exceção |
+| **2.622 registros**; 1.777 ativos (1.125 comungantes · 131 não comungantes · **521 sem categoria**) | CSV real (doc 12) | Listagem paginada e busca são requisito, não melhoria |
+| **831 admissões históricas por jurisdição a pedido**, contra 386 por transferência | CSV | Jurisdição é o caminho principal, não a exceção |
+| **860 sem sexo · 554 sem categoria · 447 inativos sem data de demissão · 34 nomes duplicados** | CSV | **A fila de revisão é funcionalidade de primeira classe**, não relatório de erro |
+| `oficial` traz 21 presbíteros, 13 em disponibilidade, 7 diáconos | CSV | 41 ofícios já importáveis na E1 |
 | 2 congregações + 1 ponto de pregação | Decisão A3-b | Lotação obrigatória desde a E1 |
 | Operadores: secretária, secretário do Conselho, pastores | Decisão B7 | Duas UX no mesmo módulo — ver §5.1 |
-| Origem: CSV de 40 colunas | Decisão A4-a | Importador é parte da E1, não pré-requisito externo |
+
+⚠️ **Os números do relatório estatístico 2025 não servem de validação** (instrução do usuário; divergência real de 108 pessoas). O rol do sistema passa a ser a fonte da verdade.
 
 ---
 
@@ -135,8 +137,26 @@ Preenche `Pessoa.data_falecimento` e gera `Demissao(FALECIMENTO)` em um passo.
 
 ### UC-M1-14 — Importar o CSV inicial ⭐
 **Ator**: você, uma vez · **Gatilho**: implantação
-Três passadas — perfilar, simular, executar — conforme doc 09 §5.
-**Critério de aceite**: reproduzir exatamente 1.404 / 265 / 1.669, com a segmentação por sexo (662-742 / 109-156 / 771-898).
+Três passadas — perfilar, simular, executar — conforme doc 09 §5. Mapeamentos definitivos no doc 12 §3.
+**Critério de aceite** (revisado): 2.622 linhas sem perda · nenhum valor categórico sem mapeamento · contagens iguais às do CSV de origem · filas de revisão nos totais esperados.
+
+### UC-M1-15 — Fila de revisão de dados ⭐ *(novo)*
+**Ator**: secretária · **Gatilho**: pós-importação e uso contínuo
+
+Consequência direta do doc 12 §5: o rol chega com lacunas conhecidas, e resolvê-las **é trabalho de meses**. Precisa ser uma tela, não um relatório.
+
+| Fila | Volume | Ação |
+|---|---:|---|
+| Sem categoria (`NAO_DEFINIDO`) | ~521 | Classificar comungante / não comungante / não membro. Mostrar forma de admissão ao lado — ela sugere a resposta em 89% dos casos |
+| Sem sexo | ~860 | Preencher; aceitar sugestão por prenome (marcada como inferida) |
+| Nomes duplicados | ~34 | Comparar lado a lado e marcar "mesma pessoa" ou "homônimos" — **nunca mesclar automaticamente** |
+| `situacao = Revisar` no legado | 99 | Triagem livre |
+| Inativos sem data de demissão | 447 | Informar data e forma, ou reativar |
+| Ativos sem `numero_ordem` | 277 | Atribuir número no padrão `AAAA`+sequência |
+
+**Requisitos**: edição em lote, filtro por fila, contador de progresso visível, e **capacidade de adiar** um item sem perdê-lo. Quem opera isso vai voltar dezenas de vezes.
+
+**Regra**: item em revisão **não** bloqueia o uso do registro. O membro aparece no rol normalmente, com um marcador discreto.
 
 ---
 
@@ -226,8 +246,8 @@ Três passadas — perfilar, simular, executar — conforme doc 09 §5.
 
 ## Critérios de pronto (E1)
 
-- [ ] Migrations `001–004` aplicadas
-- [ ] CRUD de pessoa com `sexo` obrigatório
+- [ ] Migrations `001–004` aplicadas (`005` em seguida, para os 41 ofícios do CSV)
+- [ ] CRUD de pessoa com `sexo` **opcional** e pendência de revisão
 - [ ] Vínculos familiares com fallback em texto
 - [ ] Admissão nas 7 formas de comungante e 3 de não comungante, com campos condicionais
 - [ ] Demissão em todas as formas, incluindo `ORDENACAO_AO_MINISTERIO` e `MOVIMENTO_PARA_ROL_SEPARADO`
@@ -237,7 +257,8 @@ Três passadas — perfilar, simular, executar — conforme doc 09 §5.
 - [ ] Busca por nome parcial, tolerante a acento, com paginação
 - [ ] Painel de alertas com os 5 tipos
 - [ ] Importador em 3 passadas
-- [ ] **Teste de aceite**: importação reproduz 1.404 / 265 / 1.669 com segmentação por sexo
+- [ ] **Tela de fila de revisão** (UC-M1-15) com as 6 filas
+- [ ] **Teste de aceite**: 2.622 linhas sem perda, zero valores categóricos órfãos, contagens iguais às do CSV
 - [ ] Exportação do rol em PDF e CSV
 
 ---
@@ -246,7 +267,10 @@ Três passadas — perfilar, simular, executar — conforme doc 09 §5.
 
 | Risco | Mitigação |
 |---|---|
-| Formato de data do CSV invertido (M/D vs D/M) — corrompe 1.669 registros em silêncio | Pendência P10 do doc 09; o script de perfilagem detecta pelo dia > 12 |
-| `meio_admissao` do CSV não mapear nas formas da CI | Pendência P8; a passada de simulação aborta se houver valor desconhecido |
-| Adultos batizados sem profissão de fé registrada (categoria ambígua) | Doc 09 §3 — listar para decisão do Conselho, nunca escolher sozinho |
-| 265 não comungantes possivelmente com maioridade vencida | Pendência P3 do doc 08 — **confirmar antes** de ligar a baixa automática, ou o sistema propõe centenas de exclusões no primeiro dia |
+| ~~Formato de data invertido~~ | **Eliminado**: datas em ISO 8601 (doc 12 §4) |
+| ~~`meio_admissao` sem mapeamento~~ | **Eliminado**: os 12 valores mapeiam 1-a-1 nas formas da CI (doc 12 §3.4) |
+| **521 ativos sem categoria** vão parar em listas de voto e elegibilidade | `NAO_DEFINIDO` nunca entra em `emPlenaComunhao`; fila de revisão prioritária |
+| Fila de revisão nunca ser trabalhada e o rol permanecer sujo | Contador de progresso visível; pauta de pendências para o Conselho (UC-M1-13) |
+| Deduplicação automática fundir pessoas distintas | **Nunca mesclar sozinho** — 34 nomes duplicados vão para comparação lado a lado |
+| Não comungantes com maioridade vencida | Pendência P3 do doc 08 — **confirmar antes** de ligar a baixa automática, ou o sistema propõe centenas de exclusões no primeiro dia |
+| Sistema de origem continuar em uso em paralelo | Pendência **P17** do doc 12 — decidir substituição × convivência **antes** de importar |

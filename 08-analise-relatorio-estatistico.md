@@ -3,7 +3,15 @@
 Fonte: `relatorio-igreja.pdf` — *Informações Cadastrais e Estatísticas de Comunidade Presbiteriana*, exercício **2025**, preenchido pela IPA.
 Sínodo de Anápolis (SAN) · Presbitério de Anápolis (PANA) · formulário `CSM-IPB - 2021-v.8.0`.
 
-> **Este documento é o contrato de saída do sistema.** Toda a modelagem de eventos existe para que este formulário se preencha sozinho (RN-REL-04). Onde o modelo não consegue derivar um campo daqui, o modelo está incompleto — e três lacunas reais foram encontradas (§6).
+> **Este documento é o contrato de saída do sistema**: o formulário que a igreja é obrigada a entregar ao Presbitério (RN-REL-04) define quais eventos o modelo precisa registrar.
+>
+> ### ⚠️ Ressalvas do usuário — três partes deste documento NÃO valem
+>
+> 1. **Os números de membros do relatório não batem com o rol e não servem de critério de validação.** Todo o §4.3 e o "teste de aceitação" derivado dele estão **revogados** — o critério revisado está no doc 12 §6. O rol do sistema passa a ser a fonte da verdade; o relatório do próximo exercício sairá dele, e não o contrário.
+> 2. **As informações de sociedades internas e departamentos (§3.3) não devem ser consideradas.** Hoje a IPA tem vários ministérios designados **sem formalidade alguma além do registro em ata dos respectivos líderes**. Não há sociedade com estatuto. → `OrganizacaoInterna` **volta a 🟡**; a modelagem correta desses ministérios é `Designacao` (RN-CON-41), que já existe no modelo. A "contradição com a decisão B2" que eu apontei era minha, não sua: eu tratei o formulário como fato e sua resposta como erro.
+> 3. **As informações de Escola Bíblica (§3.2 e §6.1) não entram agora.** `EscolaDominical`, `TurmaEBD` e `AtuacaoEBD` saem do MVP → ⚪ backlog.
+>
+> O que **continua válido**: a decodificação da estrutura do formulário (quais campos existem), o mapeamento das formas de admissão/demissão para as linhas do relatório (§4.1 e §4.2), e as duas correções de modelo que ele revelou — `ORDENACAO_AO_MINISTERIO` e `MOVIMENTO_PARA_ROL_SEPARADO` como formas de demissão.
 
 ---
 
@@ -262,14 +270,16 @@ O PDF salta da Seção IV para a VI. Há uma Seção V no formulário original (
 
 ## 8. Efeito consolidado sobre a prioridade dos módulos
 
-| Módulo | Antes | Agora | Motivo |
-|---|:-:|:-:|---|
-| M7 Congregações | 🟡 | **🟢** | Decisão A3-b: 2 congregações + 1 ponto de pregação existem hoje |
-| M7 Organizações internas | 🟡 | **🟢** | Seção II do formulário não fecha sem elas |
-| Escola Dominical | — | **🟢** | Seção II do formulário |
-| `VinculoMinisterial` | — | 🟡 | Seção II (licenciados/candidatos) |
-| `RelatorioFinanceiroAnual` | ⚪ | **🟢** | Seção IV do formulário |
-| Regime excepcional Art. 76 §1º | 🟢 | ⚪ | 21 presbíteros — nunca se aplica |
-| M9 Finanças (dízimos, ofertas) | ⚪ | ⚪ | Mantido fora, conforme A5 |
+Tabela revisada após as ressalvas do usuário (§ topo do documento):
 
-O modelo atualizado está no doc `04-modelo-de-entidades.md` (v2).
+| Módulo | v1 | v2 | **v3 (vigente)** | Motivo |
+|---|:-:|:-:|:-:|---|
+| M7 Congregações | 🟡 | 🟢 | **🟢** | Decisão A3-b: 2 congregações + 1 ponto de pregação existem hoje |
+| Organizações internas | 🟡 | 🟢 | **🟡** | Ressalva 2: só ministérios informais → modelar como `Designacao` |
+| Escola Dominical | — | 🟢 | **⚪** | Ressalva 3: fora por ora |
+| `VinculoMinisterial` | — | 🟡 | **🟡** | Licenciados/candidatos — atestado é ato do Conselho (Art. 115 *b*) |
+| `RelatorioFinanceiroAnual` | ⚪ | 🟢 | **🟡** | Obrigação real do formulário, mas não bloqueia a E1 |
+| Regime excepcional Art. 76 §1º | 🟢 | ⚪ | **⚪** | 21 presbíteros — nunca se aplica |
+| M9 Finanças (dízimos, ofertas) | ⚪ | ⚪ | **⚪** | Mantido fora, conforme A5 |
+
+O modelo vigente está no doc `04-modelo-de-entidades.md` (v3).

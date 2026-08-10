@@ -1,6 +1,22 @@
 # 09 — Mapeamento da importação do rol (CSV → modelo)
 
-Origem: planilha/CSV informado na decisão **A4-a**, 40 colunas, ~1.669+ linhas.
+> ## ⚠️ Documento parcialmente superado — leia o doc 12 primeiro
+>
+> Escrito **antes** do acesso ao arquivo. O `membros_rows.csv` real foi analisado em `12-perfil-dados-csv.md`, que mede os dados em vez de supô-los. Onde os dois divergirem, **vale o doc 12**.
+>
+> **Correções que o doc 12 impõe a este arquivo:**
+> 1. São **2.622 linhas**, não ~1.669.
+> 2. Datas em **ISO 8601** — pendência **P10 resolvida**, sem ambiguidade D/M.
+> 3. `categoria` vem da coluna **`membro`**, não de `data_profissao_fe` (a regra do §3 abaixo erraria 50%).
+> 4. `oficial` **deve** ser importado como `Oficio` — traz tipo e disponibilidade (§2.2 abaixo dizia o contrário).
+> 5. `id_igreja` e `profissao_informada` **descartados** por instrução do usuário.
+> 6. `sexo` **não pode ser obrigatório** — falta em 860 registros.
+> 7. `numero_ordem` é **`AAAA` + sequência**, não inteiro sequencial.
+> 8. Pendências **P7, P8 e P10 resolvidas** pelo doc 12; o script do §8 já foi executado.
+>
+> O que continua válido aqui: a **estratégia de explosão** (§1), o **processo de 3 passadas** (§5) e o **levantamento paralelo** (§6).
+
+Origem: `membros_rows.csv`, 40 colunas, **2.622 linhas**.
 
 > **A natureza do problema**: o CSV é um **registro achatado — uma linha por membro**. O modelo é **normalizado por eventos**. A importação não é um `COPY`; é uma **explosão de 1 linha em até 8 registros**. Este documento define essa explosão.
 
@@ -19,7 +35,9 @@ Origem: planilha/CSV informado na decisão **A4-a**, 40 colunas, ~1.669+ linhas.
                           └─→ VinculoFamiliar PAI/MAE   (se nome_pai / nome_mae preenchidos)
 ```
 
-**Importante**: `Oficio`, `Ordenacao` e `Mandato` **não vêm do CSV**. A coluna `oficial` é só um flag booleano — não traz tipo de ofício, data de ordenação nem mandato. Esses dados terão de ser levantados à parte (ver §6), e são justamente os que a decisão A2-a considerou insubstituíveis (Art. 25 §1º).
+> **CORRIGIDO pelo doc 12 §3.2**: a coluna `oficial` **não** é um flag booleano. Ela traz `Presbítero` (21), `Presbítero em disponibilidade` (13) e `Diácono` (7) — ou seja, **tipo de ofício e a distinção de disponibilidade** (RN-OFI-11). Deve gerar `Oficio` na importação, somando um 9º ramo à explosão acima.
+>
+> O que continua **não** vindo do CSV: `Ordenacao` (data), `Mandato` (instalação e término). Levantamento manual do §6 — agora **41 pessoas**, não 49.
 
 ---
 
@@ -107,19 +125,13 @@ Sem esses dois campos, ~1.669 registros históricos de batismo e profissão de f
 
 ---
 
-## 3. Derivação de `categoria` (comungante × não comungante)
+## 3. Derivação de `categoria` — ❌ SEÇÃO ERRADA, SUBSTITUÍDA
 
-Não existe coluna para isso no CSV, mas é a segmentação central do relatório ao Presbitério (doc 08 §4).
+Eu havia proposto derivar a categoria de `data_profissao_fe`. **Os dados reais derrubam a regra**: só 432 dos 1.291 comungantes têm esse campo preenchido (33%). A regra produziria 641 comungantes em vez de 1.291 — **erro de 50%**.
 
-```
-se data_profissao_fe preenchida        → COMUNGANTE
-senão se idade >= 18 anos              → ⚠️ INCONSISTENTE — revisar manualmente
-senão                                  → NAO_COMUNGANTE
-```
+**Regra correta** (doc 12 §3.1): a categoria vem da coluna **`membro`** (`Comungante` 1.291 · `Não comungante` 155 · `Não membro` 622 · vazio 554). `data_profissao_fe` é apenas dado histórico opcional.
 
-O caso do meio é real e provavelmente numeroso: **adulto batizado, sem profissão de fé registrada**. Pelo Art. 12 ele não é comungante; mas pelo Art. 24 *c* também já deveria ter saído do rol de não comungantes. Ver PENDÊNCIA P3 do doc 08 — em 2025 a IPA não registrou nenhuma exclusão de não comungante, o que sugere que essas pessoas estão acumuladas no rol.
-
-**O importador deve emitir uma lista dessas pessoas para decisão do Conselho**, não escolher sozinho.
+Para os 554 vazios, ver pendência **P11** do doc 12.
 
 ---
 
@@ -146,23 +158,24 @@ Com 1.669 linhas, importar "e ver no que dá" não é opção.
 | **2. Simular** | Executa toda a transformação em memória e reporta o que **seria** criado, com todos os erros e avisos por linha | `relatorio-simulacao.md` |
 | **3. Executar** | Importa de verdade, em transação única, guardando `idLegado` em tudo | `relatorio-importacao.md` |
 
-**Conferência final obrigatória** — a importação só é aceita se reproduzir o relatório de 2025 (doc 08 §4.3):
+**Conferência final** — ❌ **critério anterior revogado**. Eu propunha validar contra o relatório de 2025 (1.404 / 265 / 1.669). O usuário determinou que **os números do relatório não batem com o rol e não devem servir de critério**, e os dados confirmam: o CSV tem 1.777 ativos contra 1.669 do relatório.
 
-```
-comungantes ativos      == 1.404   (662 M / 742 F)
-não comungantes ativos  ==   265   (109 M / 156 F)
-rol total               == 1.669   (771 M / 898 F)
-```
+**Critério revisado** (doc 12 §6):
 
-Se não bater, o problema está no mapeamento de `situacao` ou `membro` — não na aritmética. Este é o melhor teste de aceitação que existe para a E1, e ele veio de graça com o PDF.
+1. As **2.622 linhas** entram sem perda — nenhuma descartada em silêncio.
+2. Nenhum valor de `membro`, `oficial`, `meio_admissao` ou `meio_demissao` fica sem mapeamento.
+3. As contagens por categoria e situação batem com **o CSV de origem**, não com o relatório.
+4. As três filas de revisão são geradas nos totais esperados: ~521 sem categoria, ~860 sem sexo, ~34 nomes duplicados.
 
 ### Classificação de erros
 
 | Nível | Exemplos | Comportamento |
 |---|---|---|
-| **Bloqueante** | sem nome; sem sexo; `membro`=sim sem `data_admissao`; `numero_ordem` duplicado; `meio_admissao` desconhecido | Aborta a importação |
-| **Aviso** | sem data de nascimento; e-mail inválido; pai/mãe não casados por nome; tipo de batismo inferido | Importa e lista para revisão |
+| **Bloqueante** | sem nome; `numero_ordem` duplicado; valor desconhecido em `membro`/`oficial`/`meio_admissao`/`meio_demissao` | Aborta a importação |
+| **Aviso** | **sem sexo (860)**; **sem categoria (554)**; sem data de admissão (273 entre ativos); inativo sem data de demissão (447); nome duplicado (34); pai/mãe não casados por nome; tipo de batismo inferido | Importa e enfileira para revisão |
 | **Silencioso** | campo opcional vazio | Nada |
+
+> **Correção**: "sem sexo" e "sem data de admissão" eram bloqueantes na v1 deste documento. Com 860 e 273 ocorrências reais, bloquear inviabilizaria a importação inteira. Viraram avisos com fila de revisão.
 
 ---
 
@@ -184,34 +197,22 @@ Estes dados não existem na planilha e precisam ser coletados à mão. **Comece 
 
 ---
 
-## 7. Pendências desta análise
+## 7. Pendências desta análise — **todas resolvidas**
 
-Todas resolvidas por um comando só, exceto P9 e P10 — ver §8.
+| # | Pergunta | Resposta |
+|---|---|---|
+| **P7** | Tipos das colunas ambíguas | `foto` = caminho relativo `picture/nome_uuid.jpeg`. `nome_pai`, `nome_mae`, `conjuge` = **texto puro**, zero UUIDs (doc 12 §4) |
+| **P8** | Domínios das colunas categóricas | Medidos e mapeados 1-a-1 no doc 12 §3. Nenhum valor órfão em `meio_admissao`; 2 a esclarecer em `meio_demissao` (P13) |
+| **P9** | O que é `id_igreja`? | **Descartado** — dados inconsistentes (`IP Anápolis` misturado com `3265`), por instrução do usuário |
+| **P10** | Formato das datas | **ISO 8601** (`1979-01-23`). Sem ambiguidade. O risco de corrupção silenciosa não existe |
 
-### P7 — Tipos das colunas ambíguas
-`foto` é caminho, URL ou base64? `nome_pai`, `nome_mae`, `conjuge` são texto ou id de outra linha?
-**Resposta:**
-
-### P8 — Domínios das colunas categóricas
-Preciso dos **valores distintos** de: `situacao`, `meio_admissao`, `meio_demissao`, `membro`, `oficial`, `estado_civil`, e a diferença entre `profissao` e `profissao_informada`.
-> Sem isso, o mapeamento de formas de admissão/demissão é chute — e é ele que faz o relatório fechar em 1.404.
-**Resposta:**
-
-### P9 — O que é `id_igreja`?
-**Hipótese**: id da congregação/ponto de pregação (a IPA tem 2 + 1 = 3). **Alternativa**: resquício de um sistema multi-igreja, com o mesmo valor em todas as linhas.
-> Se for congregação, é a única fonte de lotação existente e precisa ser mapeada antes da E1.
-**Resposta:**
-
-### P10 — Formato das datas
-`M/D/AAAA` (como no PDF) ou `D/M/AAAA`?
-> Confirme olhando qualquer linha com dia > 12. Errar aqui corrompe tudo em silêncio.
-**Resposta:**
+Pendências novas, abertas pelos dados reais: **P11 a P18**, no doc 12 §7.
 
 ---
 
-## 8. Comando para responder P7, P8 e P10 de uma vez
+## 8. Script de perfilagem — ✅ já executado
 
-Rode no terminal, com o CSV à mão, e me mande a saída:
+Resultados no doc 12. Mantido aqui para reexecução quando a planilha for atualizada.
 
 ```bash
 # ajuste o caminho do arquivo

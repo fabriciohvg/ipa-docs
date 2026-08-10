@@ -16,7 +16,7 @@ Tradução do modelo v2 (doc 04) para tabelas. Cobre o MVP: **E1 (rol) + E2 (ofi
 
 ```sql
 CREATE TYPE sexo                AS ENUM ('M','F');
-CREATE TYPE categoria_membro    AS ENUM ('COMUNGANTE','NAO_COMUNGANTE');
+CREATE TYPE categoria_membro    AS ENUM ('COMUNGANTE','NAO_COMUNGANTE','NAO_DEFINIDO');
 
 CREATE TYPE situacao_membro     AS ENUM (
   'ATIVO','EM_DISCIPLINA','ROL_SEPARADO','TRANSFERENCIA_EM_CURSO','DEMITIDO');
@@ -115,7 +115,8 @@ CREATE TABLE pessoa (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   nome_completo       text NOT NULL,
   data_nascimento     date,
-  sexo                sexo NOT NULL,          -- obrigatorio: segmenta toda a estatistica
+  sexo                sexo,                   -- NULLABLE: falta em 860 registros reais (doc 12 §5.2)
+  sexo_inferido       boolean NOT NULL DEFAULT false,
   naturalidade        text,
   estado_civil        text,
   civilmente_capaz    boolean NOT NULL DEFAULT true,
@@ -171,9 +172,11 @@ CREATE TABLE vinculo_familiar (
 CREATE TABLE membro (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   pessoa_id           uuid NOT NULL UNIQUE REFERENCES pessoa(id),
-  numero_rol          integer UNIQUE,        -- permanente, nunca reutilizado (B3-a)
-  categoria           categoria_membro NOT NULL,
+  numero_rol          text UNIQUE,           -- 'AAAA'+sequencia (ex.: '20181567') — doc 12 §4
+  categoria           categoria_membro NOT NULL DEFAULT 'NAO_DEFINIDO',
+  categoria_inferida  boolean NOT NULL DEFAULT false,
   situacao            situacao_membro NOT NULL DEFAULT 'ATIVO',
+  pendencia_revisao   boolean NOT NULL DEFAULT false,
   congregacao_id      uuid REFERENCES congregacao(id),
   data_batismo        date,
   data_profissao_fe   date,
@@ -182,18 +185,30 @@ CREATE TABLE membro (
   ata_admissao_legado text,
   id_legado           text UNIQUE,
   criado_em           timestamptz NOT NULL DEFAULT now(),
-  atualizado_em       timestamptz NOT NULL DEFAULT now(),
-
-  -- RN-MEM-02: comungante e quem fez profissao de fe
-  CONSTRAINT comungante_tem_profissao
-    CHECK (categoria <> 'COMUNGANTE' OR data_profissao_fe IS NOT NULL),
-  -- membro demitido tem data de demissao, e vice-versa
-  CONSTRAINT demissao_coerente
-    CHECK ((situacao = 'DEMITIDO') = (data_demissao IS NOT NULL))
+  atualizado_em       timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE INDEX membro_pendencia ON membro (pendencia_revisao) WHERE pendencia_revisao;
 
 CREATE INDEX membro_situacao   ON membro (situacao, categoria);
 CREATE INDEX membro_congregacao ON membro (congregacao_id);
+```
+
+> ### ⚠️ Duas `CHECK` removidas na v3 — os dados reais as violam
+>
+> ```sql
+> -- REMOVIDA: 859 dos 1.291 comungantes nao tem data_profissao_fe (doc 12 §3.1)
+> CONSTRAINT comungante_tem_profissao
+>   CHECK (categoria <> 'COMUNGANTE' OR data_profissao_fe IS NOT NULL)
+>
+> -- REMOVIDA: 447 inativos sem data_demissao e 2 ativos com data (doc 12 §3.3)
+> CONSTRAINT demissao_coerente
+>   CHECK ((situacao = 'DEMITIDO') = (data_demissao IS NOT NULL))
+> ```
+>
+> As duas expressam regras corretas da Constituição, mas **como `CHECK` impediriam a importação de 1.300+ registros legítimos**. Viram **validações de aplicação com fila de revisão** (`pendencia_revisao`), não invariantes de banco. Reintroduzi-las depois da limpeza é uma migration de uma linha — e aí sim o banco protege o que já está limpo.
+
+```sql
 ```
 
 ### `admissao` e `demissao` (eventos)
@@ -241,7 +256,7 @@ CREATE INDEX demissao_membro ON demissao (membro_id);
 CREATE VIEW membro_em_plena_comunhao AS
 SELECT m.id AS membro_id
 FROM membro m
-WHERE m.categoria = 'COMUNGANTE'
+WHERE m.categoria = 'COMUNGANTE'      -- NAO_DEFINIDO nunca entra
   AND m.situacao  = 'ATIVO'
   AND NOT EXISTS (
         SELECT 1 FROM medida_disciplinar md
@@ -684,12 +699,13 @@ Com 1.669 membros e ~15 anos de eventos, quatro consultas dominam:
 007  FKs adiadas (resolucao_id nas tabelas de evento)
 008  eleicao, apto_a_votar, candidatura
 009  ato_pastoral, participante_ato_pastoral
-010  organizacao_interna, designacao, escola_dominical, turma_ebd, atuacao_ebd
-011  relatorio_anual, relatorio_financeiro_anual
+010  designacao                        (organizacao_interna e EBD ficam para depois)
+011  relatorio_anual                   (relatorio_financeiro_anual fica para depois)
 012  view membro_em_plena_comunhao
 ```
 
 `001–004` são suficientes para a E1 e para rodar a importação do CSV.
+`005` entra logo em seguida: a coluna `oficial` do CSV já traz 41 ofícios prontos para importar (doc 12 §3.2).
 
 ---
 
@@ -698,7 +714,10 @@ Com 1.669 membros e ~15 anos de eventos, quatro consultas dominam:
 | Ausente | Motivo |
 |---|---|
 | `usuario`, `papel`, `permissao` | Decisão do usuário: sem auth na v1 (doc 07, C1) |
-| `carta_de_transferencia` | 🟡 — baixo volume (2 expedidas em 2025); entra na E5 |
+| `escola_dominical`, `turma_ebd`, `atuacao_ebd` | ⚪ — instrução do usuário: Escola Bíblica fica para depois. **Remover das migrations 010** |
+| `organizacao_interna` | 🟡 — não há sociedade com estatuto na IPA; ministérios informais usam `designacao` |
+| `relatorio_financeiro_anual` | 🟡 — não bloqueia a E1 |
+| `carta_de_transferencia` | 🟡 — 173 transferências em todo o histórico, contra 831 admissões por jurisdição; entra na E5 |
 | `processo_disciplinar`, `medida_disciplinar` | ⚪ — depende do Código de Disciplina (C2). A view `membro_em_plena_comunhao` já as prevê |
 | `bem`, `orcamento`, `contribuicao` | ⚪ — decisão A5-a. O formulário é atendido por `relatorio_financeiro_anual` |
 | `presbiterio`, `sinodo` | Fora de escopo: são texto em `igreja`, não entidades |

@@ -1,8 +1,27 @@
-# 04 — Modelo de entidades (v2)
+# 04 — Modelo de entidades (v3)
 
 Modelo de domínio da IPA derivado da CI/IPB. Cada entidade traz a(s) regra(s) `RN-XX-00` do doc 03 que a justificam.
 
 **Legenda de prioridade**: 🟢 MVP · 🟡 v2 · ⚪ backlog
+
+---
+
+## Changelog v2 → v3
+
+Ajustes decorrentes das ressalvas do usuário e do perfil dos dados reais (doc 12).
+
+| # | Mudança | Origem |
+|---|---|---|
+| 1 | `Membro.categoria` vem da coluna **`membro`** do CSV, **nunca** derivada de `data_profissao_fe` | Doc 12 §3.1 — só 33% dos comungantes têm o campo; a derivação erraria 50% |
+| 2 | **`Pessoa.sexo` passa a opcional** | Doc 12 §5.2 — falta em 860 registros; obrigatoriedade inviabiliza a importação |
+| 3 | **`Membro.numeroRol` passa a texto**, formato `AAAA` + sequência | Doc 12 §4 — o padrão em uso é `20181567`, não inteiro sequencial (revisa B3-a) |
+| 4 | 🆕 `Membro.pendenciaRevisao` + `Pessoa.dadosInferidos` | Doc 12 §5 — três filas de revisão (521 sem categoria, 860 sem sexo, 34 duplicatas) |
+| 5 | `Oficio` passa a ser **importável do CSV** (coluna `oficial`, com disponibilidade) | Doc 12 §3.2 |
+| 6 | `OrganizacaoInterna` volta a **🟡**; ministérios informais viram `Designacao` | Ressalva do usuário — não há sociedade com estatuto na IPA |
+| 7 | `EscolaDominical`, `TurmaEBD`, `AtuacaoEBD` → **⚪ backlog** | Ressalva do usuário |
+| 8 | `RelatorioFinanceiroAnual` → **🟡** | Não bloqueia a E1 |
+| 9 | Estatística **deixa de ser validada** contra o relatório 2025 | Ressalva do usuário — os números não batem com o rol |
+| 10 | 🆕 `Membro.categoria` admite `NAO_DEFINIDO`; `Pessoa` pode existir **sem** `Membro` (622 "Não membro") | Doc 12 §3.1 |
 
 ---
 
@@ -113,7 +132,8 @@ erDiagram
 |---|---|---|
 | `nomeCompleto` | texto | |
 | `dataNascimento` | data | dirige RN-MEM-04 (18 anos), RN-MEM-21 *c* |
-| `sexo` | enum M/F | **obrigatório**: RN-OFI-03 (elegibilidade) **e** segmentação de toda a estatística (doc 08 §4) |
+| `sexo` | enum M/F, **opcional** | Necessário para RN-OFI-03 e para a estatística, mas **falta em 860 registros reais** — obrigatoriedade inviabilizaria a importação. Vira pendência de revisão, não erro |
+| `sexoInferido` | booleano | quando deduzido do prenome (doc 12 §5.2) |
 | `naturalidade` | texto | do CSV de origem |
 | `estadoCivil` | enum | |
 | `civilmenteCapaz` | booleano | RN-MEM-04, RN-ASM-04 |
@@ -152,9 +172,11 @@ erDiagram
 
 | Campo | Tipo | Obs |
 |---|---|---|
-| `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registro de membro nesta igreja |
-| `numeroRol` | inteiro | sequencial **permanente, nunca reutilizado** (decisão B3-a); no CSV é `numero_ordem` |
-| `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` — RN-MEM-02 |
+| `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registro de membro. **Nem toda `Pessoa` tem `Membro`**: 622 registros do CSV são "Não membro" |
+| `numeroRol` | **texto** | Formato real em uso: `AAAA` + sequência (`20181567`). Permanente, nunca reutilizado. Preenchido em 63% do rol — ver P14 |
+| `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` \| **`NAO_DEFINIDO`** — RN-MEM-02. **Vem da coluna `membro`, nunca de `data_profissao_fe`** (doc 12 §3.1) |
+| `categoriaInferida` | booleano | quando deduzida da forma de admissão na importação (P11) |
+| `pendenciaRevisao` | booleano | fila de trabalho: mapeia `situacao = 'Revisar'` (99) e as inconsistências detectadas |
 | `situacao` | enum **derivado** | `ATIVO` \| `EM_DISCIPLINA` \| `ROL_SEPARADO` \| `TRANSFERENCIA_EM_CURSO` \| `DEMITIDO` |
 | `congregacaoId` | ref, opcional | lotação — RN-CNG-04 |
 | `dataBatismo` | data | RN-MEM-01 |
@@ -168,6 +190,7 @@ erDiagram
 ⚠️ **`situacao = ROL_SEPARADO` não conta como membro ativo** na estatística. O formulário oficial lista "Rol Separado" entre as **demissões** (doc 08 §4.1) — entrar no rol separado é uma saída da contagem de comungantes, não um estado paralelo.
 
 **`emPlenaComunhao` = `categoria == COMUNGANTE` E `situacao == ATIVO` E não existe `MedidaDisciplinar` vigente que suspenda privilégios.**
+*(`NAO_DEFINIDO` nunca está em plena comunhão — os 521 registros sem categoria ficam fora de listas de voto e elegibilidade até serem classificados.)*
 Nunca é campo editável. É a checagem mais usada do sistema inteiro (voto, elegibilidade, Ceia, apresentar filho ao batismo, compor assembleia).
 
 **Campos derivados úteis para elegibilidade** (calcular, não armazenar):
@@ -460,10 +483,14 @@ Implementada como `Reuniao(orgao = ASSEMBLEIA)` + campos extras:
 *Não tem rol próprio (RN-CNG-04): membros são da IPA, com `Membro.congregacaoId` apontando para cá.*
 *A IPA tem hoje **2 congregações e 1 ponto de pregação** — contados separadamente na Seção II do formulário. A coluna `id_igreja` do CSV possivelmente aponta para cá (doc 09, P9).*
 
-### 🟢 `OrganizacaoInterna`
+### 🟡 `OrganizacaoInterna`
 > RN-SOC-01 a RN-SOC-04, RN-CON-41 · **substitui `SociedadeInterna` da v1** (doc 08 §3.3)
 
-**Dois eixos independentes.** É o que reconcilia a decisão B2 ("nenhuma sociedade com estatuto") com o relatório 2025 ("4 departamentos, 645 membros").
+> **v3 — rebaixada de 🟢 para 🟡.** O usuário determinou que os dados de sociedades e departamentos do relatório não devem ser considerados: hoje a IPA tem **vários ministérios designados, sem formalidade além do registro em ata dos líderes**, e nenhuma sociedade com estatuto.
+>
+> **Modelagem correta desses ministérios hoje**: `Designacao` (RN-CON-41) apontando para a pessoa do líder, com `dataInicio`/`dataFim` e a `Resolucao` que o designou. É o que a decisão B2 já dizia. A entidade abaixo fica pronta para quando surgir a primeira sociedade com estatuto.
+
+**Dois eixos independentes**, quando ela for necessária:
 
 | Campo | Tipo | Obs |
 |---|---|---|
@@ -487,8 +514,8 @@ Para ministérios sem estatuto, a liderança designada por 1 ano (decisão B2) u
 
 `organizacaoInternaId` (ou `juntaDiaconalId`), `exercicio`, `tipoLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`, `observacoes`, `resolucaoId`.
 
-### 🟢 `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`
-> 🆕 v2 — Seção II do formulário (doc 08 §6.1). A IPA declara **3 escolas, 22 professores, 450 alunos**
+### ⚪ `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`
+> **v3 — movida para backlog** por instrução do usuário: informações de Escola Bíblica não entram agora. Especificação preservada para quando entrar.
 
 - `EscolaDominical`: `nome`, `congregacaoId` (opcional), `status`.
 - `TurmaEBD`: `escolaDominicalId`, `nome`, `faixaEtaria`, `anoLetivo`.
@@ -535,14 +562,16 @@ O processo é do Presbitério, mas o **atestado de vocação é ato do Conselho*
 
 **Deve ser 100% derivada dos eventos.** Se alguém precisar digitar um número aqui, o modelo de eventos está incompleto.
 
-**Validação de fechamento obrigatória** (doc 08 §4.3) — o relatório não pode ser emitido se falhar, em cada coluna de sexo separadamente:
+**Validação de fechamento interna** — o sistema confere a própria aritmética, em cada coluna de sexo:
 
 ```
 ano_atual = ano_anterior + Σ admissões − Σ demissões
 rol_atual = comungantes + não_comungantes
 ```
 
-### 🟢 `RelatorioFinanceiroAnual`
+⚠️ **v3**: essa conferência valida o sistema **contra si mesmo**, não contra o relatório de 2025. Os números históricos do formulário não batem com o rol (doc 12 §6) e **não são critério de aceite**. O primeiro exercício fechado pelo sistema passa a ser a nova linha de base.
+
+### 🟡 `RelatorioFinanceiroAnual`
 > 🆕 v2 — Seção IV do formulário (doc 08 §5). **Não é módulo de finanças**: são ~40 totais digitados uma vez por ano, preservando a decisão A5-a
 
 `exercicio`, `quadro` (`REALIZADO_ANO_ANTERIOR` \| `PREVISAO_PROXIMO_EXERCICIO`), `saldoAnoAnterior`, e uma linha por rubrica:
@@ -577,11 +606,18 @@ Totais e percentuais são **calculados**, nunca digitados. Três rubricas amarra
 **Conciliar**: `Reuniao` · `Convocacao` · `Presenca` · `Resolucao` · `Ata`
 **Assembleia**: `Assembleia` · `Eleicao` · `AptoAVotar` · `Candidatura`
 **Atos**: `AtoPastoral` · `ParticipanteAtoPastoral`
-**Estrutura** *(novo na v2)*: `Congregacao` · `OrganizacaoInterna` · `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`
-**Saída**: `RelatorioAnual` · `EstatisticaAnual` · `RelatorioFinanceiroAnual` *(novo na v2)*
+**Estrutura**: `Congregacao` · `Designacao` (ministérios informais)
+**Saída**: `RelatorioAnual` · `EstatisticaAnual`
 
-Com essas, o Conselho cumpre integralmente o Art. 83, alíneas *b*, *d*, *j*, *l*, *m*, **e emite o formulário CSM-IPB completo** — que é a obrigação constitucional mínima de registro da igreja local (Art. 68).
+Com essas, o Conselho cumpre integralmente o Art. 83, alíneas *b*, *d*, *j*, *l*, *m* — a obrigação constitucional mínima de registro da igreja local.
 
-`CartaDeTransferencia` permanece 🟡: em 2025 houve apenas 2 transferências expedidas e 17 recebidas, contra 121 admissões por jurisdição. É baixo volume e não bloqueia o relatório.
+**Fora do MVP na v3**: `OrganizacaoInterna` e `RelatorioFinanceiroAnual` (🟡) · `EscolaDominical` e derivadas (⚪) · `CartaDeTransferencia` (🟡 — baixo volume: 173 transferências em todo o histórico, contra 831 admissões por jurisdição).
 
-**Teste de aceitação do MVP**: importar o CSV e reproduzir exatamente o relatório de 2025 — 1.404 comungantes (662 M / 742 F), 265 não comungantes (109 M / 156 F), rol de 1.669. Ver doc 09 §5.
+**Teste de aceitação do MVP** (revisado na v3 — o relatório 2025 **não** é critério):
+
+1. As 2.622 linhas do CSV entram sem perda.
+2. Nenhum valor de `membro`, `oficial`, `meio_admissao` ou `meio_demissao` fica sem mapeamento.
+3. Contagens por categoria e situação batem com o CSV de origem.
+4. As filas de revisão saem nos totais esperados: ~521 sem categoria, ~860 sem sexo, ~34 nomes duplicados.
+
+Ver doc 12 §6.
