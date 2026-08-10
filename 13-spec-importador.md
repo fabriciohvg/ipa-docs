@@ -338,6 +338,8 @@ para cada linha com foto:
 
 900 arquivos. Renomear por `pessoa_id` elimina a dependência do nome antigo (`picture/fellipe_<uuid>.jpeg`), que embute o primeiro nome e é frágil.
 
+⚠️ **`<novo storage>` ainda não está definido.** A stack escolhida (Neon + Vercel) não inclui armazenamento de arquivos — o Neon é só banco. Ver **P24** no doc 15 §11; a recomendação é Vercel Blob.
+
 ---
 
 ## 9. Pendências residuais — ✅ **resolvidas**

@@ -138,8 +138,18 @@ CREATE TABLE pessoa (
   atualizado_em       timestamptz NOT NULL DEFAULT now()
 );
 
+-- ⚠️ CORRIGIDO no doc 15 §5 — nao use to_tsvector aqui.
+-- tsvector so acha palavra inteira: "silv" nao encontraria "Silva".
+-- Para busca de pessoa por nome, use trigram + wrapper IMMUTABLE de unaccent:
+--
+--   CREATE EXTENSION IF NOT EXISTS unaccent;
+--   CREATE EXTENSION IF NOT EXISTS pg_trgm;
+--   CREATE FUNCTION f_unaccent(text) RETURNS text
+--     LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT
+--     RETURN unaccent('unaccent', $1);
+--
 CREATE INDEX pessoa_nome_busca ON pessoa
-  USING gin (to_tsvector('portuguese', nome_completo));
+  USING gin (f_unaccent(lower(nome_completo)) gin_trgm_ops);
 CREATE INDEX pessoa_nascimento ON pessoa (data_nascimento);
 
 CREATE TABLE pessoa_contato (
@@ -680,7 +690,7 @@ Com 1.669 membros e ~15 anos de eventos, quatro consultas dominam:
 
 | Consulta | Índice |
 |---|---|
-| Busca de pessoa por nome parcial | `pessoa_nome_busca` (GIN + tsvector português) |
+| Busca de pessoa por nome parcial | `pessoa_nome_busca` (GIN + `pg_trgm` sobre `f_unaccent(lower(nome))`) |
 | Estatística anual por forma e sexo | `admissao_data`, `demissao_data` + join em `pessoa.sexo` |
 | Composição do Conselho numa data | `mandato_um_vigente`, `oficio_um_em_exercicio` |
 | Ausência de 6 meses por pessoa | `presenca_pessoa` |
