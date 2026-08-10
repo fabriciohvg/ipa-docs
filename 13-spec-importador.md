@@ -122,7 +122,18 @@ Preservado como **texto**, sem alteração. Estrutura real: `AAAA` + 4 dígitos,
 
 ⚠️ **A convenção mudou.** De 2018 a 2023 a sequência foi **contínua entre anos** (2018 termina em 2694, 2019 começa em 2764). Em **2024 ela reiniciou em 100** — alguém passou a numerar por ano.
 
-**Regra proposta para números novos** (confirmar — §9, P19): seguir a convenção de 2024, ou seja `AAAA` + sequência **reiniciada a cada ano**, começando em `0001`. Para 2026, o primeiro seria `20260001`.
+**Regra para números novos — P19(a) decidida**: `AAAA` + sequência de 4 dígitos **reiniciada a cada ano**, seguindo a convenção adotada em 2024.
+
+```
+proximo_numero_rol(ano):
+    seq = SELECT max(cast(substring(numero_rol, 5, 4) as int))
+          FROM membro WHERE substring(numero_rol, 1, 4) = ano
+    return ano || lpad(coalesce(seq, 0) + 1, 4, '0')
+```
+
+Os dados não contêm nenhum número de 2025 nem de 2026 (só 2018–2024), então o primeiro emitido pelo sistema será **`20260001`**. A função acima é genérica: se aparecer um número de 2026 vindo de outra origem, ela continua a partir dele em vez de colidir.
+
+⚠️ **Concorrência**: com vários operadores simultâneos (decisão B7), gerar o número por `SELECT max()` sem trava produz duplicata. Usar sequência do banco por ano, ou `INSERT` com retry sob a constraint `UNIQUE` de `numero_rol`.
 
 ### 4.5 `admissao` e `demissao`
 
@@ -329,19 +340,20 @@ para cada linha com foto:
 
 ---
 
-## 9. Pendências residuais
+## 9. Pendências residuais — ✅ **resolvidas**
 
-### P19 — Numeração para novos membros
-A convenção mudou em 2024 (sequência reiniciou em 100). Confirmo o padrão para 2026 em diante?
-- [ ] **(a) Recomendado** — `AAAA` + 4 dígitos reiniciando a cada ano; 2026 começa em `20260001`.
-- [ ] (b) Continuar a sequência contínua de 2023 (próximo seria `20265004`).
-- [ ] (c) Outro — a secretaria tem uma regra que não está visível nos dados.
+| # | Decisão | Aplicada em |
+|---|---|---|
+| **P19** | (a) `AAAA` + 4 dígitos reiniciando por ano; primeiro novo = `20260001` | §4.4 |
+| **P20** | Data de corte: **2026-08-10** | abaixo |
 
-**Decisão:** (a)
+### P20 — consequência operacional
 
-### P20 — Data de corte
-Qual data o sistema atual congela para a exportação definitiva do CSV?
-**Decisão:** Data de hoje 2026-08-10
+O `membros_rows.csv` em mãos **é a exportação definitiva** (gerado em 10/08/2026). Isso significa:
+
+- Os números da conferência (§7) são **finais**, não estimativas. Se a importação der resultado diferente, o bug é do importador.
+- A partir de agora, **todo cadastro feito no sistema antigo se perde**. Avise a secretaria: ou param de cadastrar, ou anotam em papel o que entrar entre hoje e a virada, para relançar no sistema novo.
+- Se a virada demorar semanas, reexportar mais perto da data é mais seguro do que acumular lançamentos em papel. Nesse caso, **rode a passada de validação de novo** — valor categórico novo é erro bloqueante de propósito (§5).
 
 ---
 

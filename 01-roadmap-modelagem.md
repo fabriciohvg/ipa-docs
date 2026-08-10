@@ -11,11 +11,17 @@ Formato pensado para TDAH: cada passo tem **1 entregável**, **critério de "pro
 ```
 FASE 1  Extrair       →  o que a Constituição diz sobre igreja local    [FEITO]
 FASE 2  Nomear        →  glossário / linguagem ubíqua                    [FEITO]
-FASE 3  Modelar       →  entidades, atributos, relações                  [FEITO — v1]
-FASE 4  Decidir       →  suas escolhas locais                            [VOCÊ]
-FASE 5  Especificar   →  casos de uso → telas → schema
-FASE 6  Cortar        →  MVP: o que entra na v1 do app
+FASE 3  Modelar       →  entidades, atributos, relações                  [FEITO — v3]
+FASE 4  Decidir       →  suas escolhas locais                            [FEITO — A1..P20]
+FASE 5  Especificar   →  casos de uso → telas → schema                   [FEITO — M1]
+FASE 6  Cortar        →  MVP: o que entra na v1 do app                   [FEITO — E1]
+────────────────────────────────────────────────────────────────────────────────
+FASE 7  Construir     →  stack (doc 14) → migrations → importador → rol  [AGORA]
 ```
+
+> **A modelagem acabou.** As fases 1 a 6 estão fechadas: 24 decisões respondidas, modelo na v3, schema pronto, importador simulado contra os dados reais. O que falta é código.
+>
+> As specs dos módulos M2 a M9 (§FASE 5 abaixo) continuam pendentes **de propósito** — escrever agora seria adivinhar. Escreva a spec de cada módulo quando chegar a vez dele, com o sistema já em uso e a secretaria dando retorno.
 
 ---
 

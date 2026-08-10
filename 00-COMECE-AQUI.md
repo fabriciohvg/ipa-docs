@@ -25,7 +25,8 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices | Ao criar as migrations |
 | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo (E1) | **Para começar a codar** |
 | 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 registros reais | Fonte da verdade sobre os dados |
-| 13 | `13-spec-importador.md` | **Algoritmo completo da migração** | **Para implementar o importador** |
+| 13 | `13-spec-importador.md` | Algoritmo completo da migração | Para implementar o importador |
+| 14 | `14-decisao-stack-tecnica.md` | **Escolha da stack + decisões técnicas fixas** | **Leia agora — é a única coisa que falta decidir** |
 
 ### Insumos
 
@@ -44,8 +45,9 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 - [x] **CSV real perfilado — P7 a P10 resolvidas**
 - [x] Schema do banco (MVP) ajustado aos dados reais
 - [x] Spec do M1 com fila de revisão
-- [x] **P11–P18 respondidas · spec do importador escrito e simulado**
-- [ ] **Você**: responder P19 e P20 (doc 13 §9) — pequenas, não travam o começo
+- [x] **P11–P20 respondidas · importador especificado e simulado**
+- [x] **Modelagem encerrada** — fases 1 a 6 do roadmap fechadas
+- [ ] **Você**: escolher a stack (doc 14, P21–P23)
 - [ ] Implementar E1 (migrations 001–005 → importador → rol → fila de revisão)
 
 ## Números da importação (simulados com as regras já decididas)
@@ -59,8 +61,14 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 
 ## Próxima ação (uma só)
 
-Comece a implementar: **migrations `001–005`** do doc 10, depois o importador seguindo o doc 13 §11 (12 passos, na ordem).
+Responda **P21** no doc 14: em que stack você programa com conforto hoje?
 
-Os passos 1–5 já produzem um rol consultável. Se a energia acabar aí, o projeto já tem valor.
+É a última decisão pendente do projeto inteiro. Depois dela o caminho é só código, na ordem do doc 13 §11.
 
-Se preferir fechar as pontas antes: P19 e P20 do doc 13 §9 são duas perguntas curtas (padrão de numeração para novos membros e data de congelamento do sistema atual).
+```
+P21 → migrations → importador → tela de rol → fila de revisão
+                                                    ↓
+                                    ▶ A SECRETARIA COMEÇA A USAR
+```
+
+⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exportação definitiva. Todo cadastro feito no sistema antigo a partir de agora se perde na virada — combine isso com a secretaria hoje, não na véspera.
