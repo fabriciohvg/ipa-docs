@@ -254,7 +254,32 @@ Diferença de 108 no total. Se a inferência de §5.1 rodar, os 521 se distribue
 
 ---
 
-## 7. Decisões pendentes
+## 6.1 Correção a este documento após a simulação
+
+Ao simular as regras decididas, dois pontos do §3.1 e do §5.1 se mostraram imprecisos:
+
+1. **Os 622 `Não membro` são ex-membros, não não-membros.** Todos os 622 têm histórico de membresia (385 com `numero_ordem`, 292 com `meio_admissao`, 287 com `meio_demissao`). Devem receber `Membro(situacao = DEMITIDO)`, não ficar como `Pessoa` pura — caso contrário 385 números de rol históricos se perdem. Ver doc 13 §4.1.
+2. **A inferência de P11(a) resolve mais do que eu estimei**: 466 registros classificados, sobrando **88** em `NAO_DEFINIDO` (eu havia estimado 58 sobre uma base menor). Números finais medidos no doc 13 §7.
+
+---
+
+## 7. Decisões pendentes — ✅ **todas respondidas**
+
+| # | Decisão | Onde foi aplicada |
+|---|---|---|
+| P11 | (a) inferir categoria pela forma de admissão | doc 13 §4.2 |
+| P12 | **(b) `situacao` manda** | doc 13 §4.3 — **três consequências tratadas em §6** |
+| P13 | `Transferência presbitério` = ordenação ao ministério | doc 13 §4.5 |
+| P14 | (a) preservar `numero_ordem` como texto | doc 13 §4.4 — abriu a **P19** |
+| P15 | fotos disponíveis | doc 13 §8 |
+| P16 | diáconos desatualizados, correção no sistema novo | doc 13 §4.7 |
+| P17 | **substitui** o sistema atual | doc 13 §2 — importação única, sem sincronização |
+| P18 | (a) inferir sexo por prenome | doc 13 §4.6 |
+
+Pendências novas abertas pela simulação: **P19** (numeração de novos membros) e **P20** (data de corte), no doc 13 §9.
+
+<details>
+<summary>Texto original das decisões (histórico)</summary>
 
 ### P11 — Os 521 ativos sem categoria
 - [ ] **(a) Recomendado** — inferir pela forma de admissão (Batismo infantil / Jurisdição sobre os responsáveis → não comungante; demais → comungante), marcar `categoriaInferida = true`, e gerar fila de revisão.
@@ -301,3 +326,5 @@ O CSV traz 7 diáconos; o relatório 2025 declara 28. A Junta Diaconal está no 
 - [ ] (b) Deixar todos os 860 em branco.
 
 **Decisão:** (a)
+
+</details>

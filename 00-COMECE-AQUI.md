@@ -24,7 +24,8 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 09 | `09-mapeamento-importacao-csv.md` | ⚠️ *parcialmente superado pelo doc 12* | Estratégia de importação |
 | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices | Ao criar as migrations |
 | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo (E1) | **Para começar a codar** |
-| 12 | `12-perfil-dados-csv.md` | **Perfil medido dos 2.622 registros reais** | **Fonte da verdade sobre os dados** |
+| 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 registros reais | Fonte da verdade sobre os dados |
+| 13 | `13-spec-importador.md` | **Algoritmo completo da migração** | **Para implementar o importador** |
 
 ### Insumos
 
@@ -40,24 +41,26 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 - [x] Máquinas de estado · módulos e casos de uso
 - [x] Decisões dos blocos A e B respondidas
 - [x] Formulário estatístico decodificado (com ressalvas)
-- [x] **CSV real perfilado — P7, P8, P9 e P10 resolvidas**
+- [x] **CSV real perfilado — P7 a P10 resolvidas**
 - [x] Schema do banco (MVP) ajustado aos dados reais
 - [x] Spec do M1 com fila de revisão
-- [ ] **Você**: responder P11–P18 (doc 12 §7)
-- [ ] Implementar E1 (migrations 001–005 + importador + rol + fila de revisão)
+- [x] **P11–P18 respondidas · spec do importador escrito e simulado**
+- [ ] **Você**: responder P19 e P20 (doc 13 §9) — pequenas, não travam o começo
+- [ ] Implementar E1 (migrations 001–005 → importador → rol → fila de revisão)
 
-## Números reais da IPA (do CSV, não do relatório)
+## Números da importação (simulados com as regras já decididas)
 
-**2.622 registros** · 1.777 ativos: 1.125 comungantes · 131 não comungantes · **521 sem categoria**
-21 presbíteros · 13 presbíteros em disponibilidade · 7 diáconos · 2 congregações · 1 ponto de pregação
+**2.622 pessoas · 2.622 membros**
+1.751 comungantes · 161 não comungantes · 88 sem categoria definida · 466 com categoria inferida
+1.876 ativos · 746 demitidos
+2.178 admissões · 312 demissões · 1.276 atos pastorais · 41 ofícios (21 presbíteros, 13 em disponibilidade, 7 diáconos)
 
-**Lacunas conhecidas**: 860 sem sexo · 554 sem categoria · 447 inativos sem data de demissão · 34 nomes duplicados.
-O rol chega sujo, e limpá-lo é trabalho de meses — por isso a fila de revisão é funcionalidade, não relatório.
+**Filas de revisão geradas**: ~1.500 itens. Não é sinal de importação ruim — é o estado real do rol ficando visível pela primeira vez.
 
 ## Próxima ação (uma só)
 
-Abra `12-perfil-dados-csv.md` e responda **P11, P12 e P14** — as três que travam o importador (o que fazer com os 521 sem categoria, como resolver situação × data de demissão, e o formato do número de rol).
+Comece a implementar: **migrations `001–005`** do doc 10, depois o importador seguindo o doc 13 §11 (12 passos, na ordem).
 
-**P17 é a mais importante estrategicamente**: existe um sistema rodando hoje? Se sim, o novo substitui ou convive? Isso muda o projeto inteiro.
+Os passos 1–5 já produzem um rol consultável. Se a energia acabar aí, o projeto já tem valor.
 
-Se estiver sem energia: leia só o §5 do doc 12. São os três problemas de dados em uma página.
+Se preferir fechar as pontas antes: P19 e P20 do doc 13 §9 são duas perguntas curtas (padrão de numeração para novos membros e data de congelamento do sistema atual).

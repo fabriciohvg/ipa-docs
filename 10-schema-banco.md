@@ -217,7 +217,7 @@ CREATE INDEX membro_congregacao ON membro (congregacao_id);
 CREATE TABLE admissao (
   id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   membro_id          uuid NOT NULL REFERENCES membro(id) ON DELETE CASCADE,
-  data               date NOT NULL,
+  data               date,          -- NULLABLE: 441 admissoes historicas sem data (doc 13 §6.3)
   forma              forma_admissao NOT NULL,
   resolucao_id       uuid,                   -- FK adicionada depois
   igreja_origem_nome text,
@@ -234,7 +234,7 @@ CREATE INDEX admissao_membro ON admissao (membro_id);
 CREATE TABLE demissao (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   membro_id           uuid NOT NULL REFERENCES membro(id) ON DELETE CASCADE,
-  data                date NOT NULL,
+  data                date,          -- NULLABLE pelo mesmo motivo da admissao
   forma               forma_demissao NOT NULL,
   resolucao_id        uuid,
   igreja_destino_nome text,
