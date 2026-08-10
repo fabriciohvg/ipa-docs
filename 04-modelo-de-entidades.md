@@ -1,8 +1,29 @@
-# 04 — Modelo de entidades (v1)
+# 04 — Modelo de entidades (v2)
 
 Modelo de domínio da IPA derivado da CI/IPB. Cada entidade traz a(s) regra(s) `RN-XX-00` do doc 03 que a justificam.
 
 **Legenda de prioridade**: 🟢 MVP · 🟡 v2 · ⚪ backlog
+
+---
+
+## Changelog v1 → v2
+
+Ajustes decorrentes das decisões do doc 07, do relatório oficial (doc 08) e do CSV de origem (doc 09).
+
+| # | Mudança | Origem |
+|---|---|---|
+| 1 | `Congregacao` promovida a 🟢 | Decisão A3-b: 2 congregações + 1 ponto de pregação existem hoje |
+| 2 | `SociedadeInterna` substituída por **`OrganizacaoInterna`** com dois eixos (`natureza` × `categoriaIPB`), promovida a 🟢 | Doc 08 §3.3 — o formulário exige contagem de departamentos sem estatuto |
+| 3 | 🆕 **`EscolaDominical`**, `TurmaEBD`, `AtuacaoEBD` | Doc 08 §6.1 — Seção II do formulário |
+| 4 | 🆕 **`VinculoMinisterial`** (licenciados e candidatos) | Doc 08 §3.1 |
+| 5 | 🆕 **`RelatorioFinanceiroAnual`** (totais anuais, sem módulo de finanças) | Doc 08 §5 — preserva a decisão A5-a |
+| 6 | `Demissao.forma` ganha `ORDENACAO_AO_MINISTERIO` e `MOVIMENTO_PARA_ROL_SEPARADO` | Doc 08 §4.1 — linhas do formulário oficial |
+| 7 | `AtoPastoral.oficianteId` passa a **opcional**, com `oficianteNomeExterno` e `igrejaExternaNome` | Doc 09 §2.5 — atos históricos de outras igrejas |
+| 8 | `Igreja` ganha siglas, caixa postal, telefones, e-mail e site | Doc 08 §2 — Seção I do formulário |
+| 9 | `Pessoa` ganha `naturalidade`, `idLegado` e campos-texto de filiação/cônjuge | Doc 09 §2.1 e §2.6 |
+| 10 | `EstatisticaAnual` reescrita para espelhar o formulário CSM-IPB campo a campo | Doc 08 §4 |
+| 11 | Regime excepcional do Art. 76 §1º rebaixado a ⚪ | 21 presbíteros — nunca se aplica (doc 08 §1) |
+| 12 | Toda contagem estatística passa a ser segmentada por **sexo** | Doc 08 §4 |
 
 ---
 
@@ -71,12 +92,17 @@ erDiagram
 | Campo | Tipo | Obs |
 |---|---|---|
 | `nome` | texto | "Igreja Presbiteriana de Anápolis" |
-| `cnpj` | texto | RN-IGR-03 |
-| `dataOrganizacao` | data | quando foi organizada em igreja (CI Art. 5º) |
-| `presbiterioNome` | texto | fronteira — só referência |
-| `sinodoNome` | texto | fronteira |
+| `cnpj` | texto | RN-IGR-03 — `00.045.369/0001-10` |
+| `dataOrganizacao` | data | `14/07/1953` (CI Art. 5º) |
+| `presbiterioNome` / `presbiterioSigla` | texto | fronteira — "Presbitério de Anápolis" / `PANA` |
+| `sinodoNome` / `sinodoSigla` | texto | fronteira — "Sínodo de Anápolis" / `SAN` |
 | `endereco` | embutido | |
+| `caixaPostal` / `caixaPostalCep` | texto | Seção I do formulário |
+| `telefones[]` | lista | **lista**, não campo único |
+| `email` / `site` | texto | Seção I do formulário |
 | `estatutoVigenteUrl` / `estatutoAprovadoEm` | arquivo/data | RN-ASM-03 *c* |
+
+*Campos de identificação alinhados ao formulário CSM-IPB 2021 v8.0, Seção I (doc 08 §2).*
 
 *Singleton porque o sistema é mono-igreja. Manter como tabela de 1 linha, não como constante em código — facilita replicar para outra igreja depois.*
 
@@ -87,16 +113,20 @@ erDiagram
 |---|---|---|
 | `nomeCompleto` | texto | |
 | `dataNascimento` | data | dirige RN-MEM-04 (18 anos), RN-MEM-21 *c* |
-| `sexo` | enum M/F | **necessário** por RN-OFI-03 (elegibilidade ao oficialato) |
+| `sexo` | enum M/F | **obrigatório**: RN-OFI-03 (elegibilidade) **e** segmentação de toda a estatística (doc 08 §4) |
+| `naturalidade` | texto | do CSV de origem |
 | `estadoCivil` | enum | |
 | `civilmenteCapaz` | booleano | RN-MEM-04, RN-ASM-04 |
 | `cpf`, `rg` | texto | |
 | `contatos` | lista | telefone, e-mail, WhatsApp |
 | `endereco` | embutido | usado em RN-MEM-12 (residência nos limites da igreja) |
-| `profissao`, `escolaridade` | texto | ⚪ |
+| `profissao`, `profissaoInformada`, `escolaridade` | texto | do CSV de origem |
+| `nomePaiTexto`, `nomeMaeTexto`, `nomeConjugeTexto` | texto | **fallback** quando o casamento por nome falha na importação (doc 09 §2.6) |
+| `dataCasamento` | data | do CSV de origem |
 | `dataFalecimento` | data | dispara RN-MEM-20 *f* |
 | `foto` | arquivo | 🟡 |
 | `observacoes` | texto | |
+| `idLegado` | texto | chave da planilha de origem — preservar para reimportação e auditoria |
 
 ### 🟢 `VinculoFamiliar`
 > RN-MEM-11 *a*/*b*, RN-TRF-03, RN-ATO-04 — a CI exige saber quem são **pais ou responsáveis** do não comungante
@@ -123,7 +153,7 @@ erDiagram
 | Campo | Tipo | Obs |
 |---|---|---|
 | `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registro de membro nesta igreja |
-| `numeroRol` | inteiro | número no rol, sequencial |
+| `numeroRol` | inteiro | sequencial **permanente, nunca reutilizado** (decisão B3-a); no CSV é `numero_ordem` |
 | `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` — RN-MEM-02 |
 | `situacao` | enum **derivado** | `ATIVO` \| `EM_DISCIPLINA` \| `ROL_SEPARADO` \| `TRANSFERENCIA_EM_CURSO` \| `DEMITIDO` |
 | `congregacaoId` | ref, opcional | lotação — RN-CNG-04 |
@@ -132,6 +162,10 @@ erDiagram
 | `dataAdmissao` | data | denormalizado da última `Admissao` |
 | `dataDemissao` | data | denormalizado da `Demissao` |
 | `emPlenaComunhao` | booleano **derivado** | RN-MEM-06, RN-ELE-04 — ver regra abaixo |
+| `ataAdmissaoLegado` | texto | nº/data da ata de admissão vinda da planilha; **não** vincula a `Ata` (decisão A2-a) |
+| `idLegado` | texto | rastreio da migração |
+
+⚠️ **`situacao = ROL_SEPARADO` não conta como membro ativo** na estatística. O formulário oficial lista "Rol Separado" entre as **demissões** (doc 08 §4.1) — entrar no rol separado é uma saída da contagem de comungantes, não um estado paralelo.
 
 **`emPlenaComunhao` = `categoria == COMUNGANTE` E `situacao == ATIVO` E não existe `MedidaDisciplinar` vigente que suspenda privilégios.**
 Nunca é campo editável. É a checagem mais usada do sistema inteiro (voto, elegibilidade, Ceia, apresentar filho ao batismo, compor assembleia).
@@ -159,12 +193,19 @@ Nunca é campo editável. É a checagem mais usada do sistema inteiro (voto, ele
 | Campo | Tipo |
 |---|---|
 | `membroId`, `data` | |
-| `forma` | enum — `EXCLUSAO_DISCIPLINA` \| `EXCLUSAO_A_PEDIDO` \| `EXCLUSAO_POR_AUSENCIA` \| `CARTA_TRANSFERENCIA` \| `JURISDICAO_ASSUMIDA_POR_OUTRA` \| `FALECIMENTO` \| `MAIORIDADE_18` \| `PROFISSAO_FE` \| `SOLICITACAO_DOS_PAIS` |
+| `forma` | enum — `EXCLUSAO_DISCIPLINA` \| `EXCLUSAO_A_PEDIDO` \| `EXCLUSAO_POR_AUSENCIA` \| `CARTA_TRANSFERENCIA` \| `JURISDICAO_ASSUMIDA_POR_OUTRA` \| `FALECIMENTO` \| **`ORDENACAO_AO_MINISTERIO`** \| **`MOVIMENTO_PARA_ROL_SEPARADO`** \| `MAIORIDADE_18` \| `PROFISSAO_FE` \| `SOLICITACAO_DOS_PAIS` |
 | `resolucaoId` | ref |
 | `igrejaDestinoNome` | texto |
 | `motivo` | texto |
+| `origemMigracao` | booleano | true quando importado sem resolução vinculada |
 
 *Nota: `MAIORIDADE_18` e `PROFISSAO_FE` só se aplicam a não comungantes (RN-MEM-21). No caso de profissão de fé, é demissão do rol de não comungantes **seguida de admissão** no de comungantes — o sistema deve fazer os dois num só fluxo.*
+
+**Duas formas adicionadas na v2, ambas linhas do formulário oficial (doc 08 §4.1):**
+- `ORDENACAO_AO_MINISTERIO` — membro ordenado ministro passa ao rol do Presbitério (RN-MEM-24 / CI Art. 23 §3º). Era tratado como fronteira informativa na v1; é saída do rol.
+- `MOVIMENTO_PARA_ROL_SEPARADO` — a entrada no rol separado subtrai da contagem de comungantes (RN-MEM-23). Se a pessoa for depois localizada, gerar `Admissao(RESTAURACAO)`.
+
+⚠️ **Mapeamento para o formulário**: o relatório do Presbitério funde as três exclusões numa linha só ("Exclusão") e as duas jurisdições em outra ("Jurisdição"). O modelo guarda a forma **granular** da Constituição e agrega na hora de emitir — nunca o contrário.
 
 ### 🟢 `CartaDeTransferencia`
 > RN-TRF-01 a RN-TRF-08 — **a entidade mais mal modelada nos sistemas de igreja existentes**
@@ -373,7 +414,10 @@ Implementada como `Reuniao(orgao = ASSEMBLEIA)` + campos extras:
 |---|---|---|
 | `tipo` | enum | `BATISMO_INFANTIL` \| `BATISMO_ADULTO` \| `PROFISSAO_DE_FE` \| `SANTA_CEIA` \| `CASAMENTO` \| `FUNERAL` \| `VISITA_PASTORAL` \| `ACONSELHAMENTO` \| `UNCAO_ENFERMOS` \| `BENCAO_APOSTOLICA` |
 | `data`, `local` | | |
-| `oficianteId` | ref Pessoa | **validar RN-ATO-01**: sacramentos e casamento só por quem tem `Oficio.tipo = MINISTRO` ou `RelacaoPastoral` ativa |
+| `oficianteId` | ref Pessoa, **opcional** | **validar RN-ATO-01**: sacramentos e casamento só por quem tem `Oficio.tipo = MINISTRO` ou `RelacaoPastoral` ativa |
+| `oficianteNomeExterno` | texto | pastor de outra igreja, já falecido ou inexistente como `Pessoa` — **indispensável para os ~1.669 atos históricos** (doc 09 §2.5) |
+| `igrejaExternaNome` | texto | quando o ato ocorreu em outra igreja |
+| `inferido` | booleano | tipo deduzido na importação (ex.: batismo infantil × adulto), marcado para revisão |
 | `congregacaoId` | ref, opcional | |
 | `reportadoAoConselhoEm` | data | RN-ATO-03 |
 | `resolucaoRegistroId` | ref | resolução que registrou o relatório de atos |
@@ -406,32 +450,63 @@ Implementada como `Reuniao(orgao = ASSEMBLEIA)` + campos extras:
 
 ---
 
-## 8. Congregações e sociedades internas
+## 8. Congregações, organizações internas e Escola Dominical
 
-### 🟡 `Congregacao`
-> RN-CNG-01 a RN-CNG-04
+### 🟢 `Congregacao`
+> RN-CNG-01 a RN-CNG-04 · **promovida a MVP** pela decisão A3-b
 
-`nome`, `tipo` (`PONTO_DE_PREGACAO` \| `CONGREGACAO`), `endereco`, `dataEstabelecimento`, `resolucaoId` (RN-CON-36), `responsavelId` (presbítero ou pastor designado), `status` (`ATIVA` \| `ORGANIZADA_EM_IGREJA` \| `DISSOLVIDA`).
+`nome`, `tipo` (`PONTO_DE_PREGACAO` \| `CONGREGACAO`), `endereco`, `dataEstabelecimento`, `resolucaoId` (RN-CON-36), `responsavelId` (presbítero ou pastor designado), `status` (`ATIVA` \| `ORGANIZADA_EM_IGREJA` \| `DISSOLVIDA`), `idLegado`.
 
 *Não tem rol próprio (RN-CNG-04): membros são da IPA, com `Membro.congregacaoId` apontando para cá.*
+*A IPA tem hoje **2 congregações e 1 ponto de pregação** — contados separadamente na Seção II do formulário. A coluna `id_igreja` do CSV possivelmente aponta para cá (doc 09, P9).*
 
-### 🟡 `SociedadeInterna`
-> RN-SOC-01 a RN-SOC-04
+### 🟢 `OrganizacaoInterna`
+> RN-SOC-01 a RN-SOC-04, RN-CON-41 · **substitui `SociedadeInterna` da v1** (doc 08 §3.3)
 
-`nome` (SAF, UMP, UPH, UPA, UCP…), `sigla`, `estatutoAprovadoEm`, `resolucaoAprovacaoEstatutoId`, `regimentoUrl`, `status`.
+**Dois eixos independentes.** É o que reconcilia a decisão B2 ("nenhuma sociedade com estatuto") com o relatório 2025 ("4 departamentos, 645 membros").
 
-### 🟡 `DiretoriaSociedade`
-`sociedadeInternaId`, `pessoaId`, `cargo`, `anoExercicio`, `dataPosse`, `resolucaoPosseId` (RN-SOC-01).
+| Campo | Tipo | Obs |
+|---|---|---|
+| `nome` | texto | |
+| `natureza` | enum | `SOCIEDADE_COM_ESTATUTO` \| `DEPARTAMENTO_OU_MINISTERIO` |
+| `categoriaIPB` | enum | `UCP` \| `UPA` \| `UMP` \| `SAF` \| `UPH` \| `OUTRAS` — **existe só para somar as linhas do formulário** |
+| `numeroDeMembrosVinculados` | inteiro | Seção II do formulário |
+| `estatutoAprovadoEm` | data | só se `natureza = SOCIEDADE_COM_ESTATUTO` |
+| `resolucaoAprovacaoEstatutoId` | ref | RN-SOC-01 |
+| `regimentoUrl` | arquivo | |
+| `status` | enum | `ATIVA` \| `INATIVA` |
+
+**Regra**: os deveres do Art. 83 *o*, *p*, *q* (aprovar estatuto, empossar diretoria, examinar livros) só se aplicam a `SOCIEDADE_COM_ESTATUTO`. Um ministério de louvor sem estatuto entra na contagem do formulário e **não** dispara exame de livros — que é exatamente a situação atual da IPA.
+
+### 🟡 `DiretoriaOrganizacao`
+`organizacaoInternaId`, `pessoaId`, `cargo`, `anoExercicio`, `dataPosse`, `resolucaoPosseId` (RN-SOC-01).
+Para ministérios sem estatuto, a liderança designada por 1 ano (decisão B2) usa `Designacao` apontando para a `OrganizacaoInterna`.
 
 ### 🟡 `ExameDeLivros`
 > RN-SOC-02 — Art. 83 *p* obriga o Conselho a examinar e **registrar observações nos livros**
 
-`sociedadeInternaId` (ou `juntaDiaconalId`), `exercicio`, `tipoLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`, `observacoes`, `resolucaoId`.
+`organizacaoInternaId` (ou `juntaDiaconalId`), `exercicio`, `tipoLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`, `observacoes`, `resolucaoId`.
+
+### 🟢 `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`
+> 🆕 v2 — Seção II do formulário (doc 08 §6.1). A IPA declara **3 escolas, 22 professores, 450 alunos**
+
+- `EscolaDominical`: `nome`, `congregacaoId` (opcional), `status`.
+- `TurmaEBD`: `escolaDominicalId`, `nome`, `faixaEtaria`, `anoLetivo`.
+- `AtuacaoEBD`: `pessoaId` (ou `nomeExterno`, para aluno não membro), `turmaEBDId`, `papel` (`PROFESSOR` \| `ALUNO`), `anoLetivo`.
+
+Os 4 números do formulário passam a ser derivados. *Nos dados de 2025 os alunos aparecem idênticos aos de 2024 (450 e 450) — indício de número repetido por falta de controle, e o principal argumento para modelar isto de verdade.*
 
 ### 🟡 `JuntaDiaconal`
 > RN-DIA-01 a RN-DIA-03
 
-`regimentoAprovadoEm`, `resolucaoAprovacaoId`, `presidenteId`. Composição = todos os `Oficio(DIACONO, EM_EXERCICIO)`. Reuniões via `Reuniao(orgao = JUNTA_DIACONAL)`.
+`regimentoAprovadoEm`, `resolucaoAprovacaoId`, `presidenteId`. Composição = todos os `Oficio(DIACONO, EM_EXERCICIO)` — **28 diáconos** hoje. Reuniões via `Reuniao(orgao = JUNTA_DIACONAL)`.
+
+### 🟡 `VinculoMinisterial`
+> 🆕 v2 — Seção II do formulário, linhas "Licenciados" e "Candidatos" (doc 08 §3.1)
+
+`pessoaId`, `tipo` (`CANDIDATO` \| `LICENCIADO`), `dataAtestadoDoConselho`, `resolucaoAtestadoId`, `dataLicenciatura`, `dataOrdenacao`, `status` (`ATIVO` \| `ORDENADO` \| `CASSADO`), `presbiterioNome`.
+
+O processo é do Presbitério, mas o **atestado de vocação é ato do Conselho** (CI Art. 115 *b*) — logo é `Resolucao`, logo pertence a este sistema. Quando o candidato é ordenado, dispara `Demissao(ORDENACAO_AO_MINISTERIO)` no rol.
 
 ---
 
@@ -443,11 +518,39 @@ Implementada como `Reuniao(orgao = ASSEMBLEIA)` + campos extras:
 `exercicio` (ano), `textoAtividades`, `apresentadoNaAssembleiaId` (RN-REL-03), `enviadoAoPresbiterioEm` (RN-REL-04), `arquivoUrl`.
 
 ### 🟢 `EstatisticaAnual` (calculada)
-Campos que a IPB pede historicamente (confirmar com o modelo de formulário vigente do Presbitério — ver doc 07, decisão B4):
+**Espelha campo a campo o formulário CSM-IPB 2021 v8.0** (analisado no doc 08). Substitui a lista especulativa da v1.
 
-comungantes em 01/01 · admitidos por profissão de fé / batismo e profissão / carta / jurisdição / restauração · demitidos por carta / exclusão / falecimento / jurisdição assumida · comungantes em 31/12 · não comungantes em 01/01 e 31/12 · batismos infantis · casamentos · presbíteros em exercício · diáconos em exercício · congregações · pontos de pregação · sociedades internas · número de reuniões do Conselho · média de frequência aos cultos.
+**Toda linha da Seção III é tripla: MASC · FEM · TOTAL.**
+
+| Bloco | Campos |
+|---|---|
+| **Liderança formal** | pastores · licenciados · presbíteros · diáconos · evangelistas · missionários · candidatos |
+| **Estrutura do trabalho** | congregações · pontos de pregação · escolas dominicais · professores EBD · alunos EBD ano atual · alunos EBD ano anterior |
+| **Departamentos internos** | por `categoriaIPB` (UCP/UPA/UMP/SAF/UPH/Outras): nº de departamentos e nº de membros · totais |
+| **Comungantes — admissão** | profissão de fé · profissão de fé e batismo · transferência · **jurisdição** (a pedido + *ex officio* somadas) · restauração · designação do Presbitério |
+| **Comungantes — demissão** | transferência · falecimento · **exclusão** (disciplina + a pedido + por ausência somadas) · ordenação · rol separado |
+| **Não comungantes — admissão** | batismo · transferência · jurisdição *ex officio* |
+| **Não comungantes — demissão** | profissão de fé · transferência · falecimento · exclusão |
+| **Fechamento** | ano anterior · diferença (admissões − demissões) · ano atual · **rol atual** (comungantes + não comungantes) |
 
 **Deve ser 100% derivada dos eventos.** Se alguém precisar digitar um número aqui, o modelo de eventos está incompleto.
+
+**Validação de fechamento obrigatória** (doc 08 §4.3) — o relatório não pode ser emitido se falhar, em cada coluna de sexo separadamente:
+
+```
+ano_atual = ano_anterior + Σ admissões − Σ demissões
+rol_atual = comungantes + não_comungantes
+```
+
+### 🟢 `RelatorioFinanceiroAnual`
+> 🆕 v2 — Seção IV do formulário (doc 08 §5). **Não é módulo de finanças**: são ~40 totais digitados uma vez por ano, preservando a decisão A5-a
+
+`exercicio`, `quadro` (`REALIZADO_ANO_ANTERIOR` \| `PREVISAO_PROXIMO_EXERCICIO`), `saldoAnoAnterior`, e uma linha por rubrica:
+
+- **Receitas**: dízimos · ofertas · ofertas missionárias · ofertas específicas · receitas financeiras · empréstimos IPB/JPEF · parcerias · outras receitas
+- **Despesas**: patrimônio · causas locais · evangelismo local · missões · ação social · sustento pastoral · verba presbiterial · dízimo ao Supremo Concílio · empréstimos IPB/JPEF · outras despesas
+
+Totais e percentuais são **calculados**, nunca digitados. Três rubricas amarram no modelo: `sustentoPastoral` ↔ `RelacaoPastoral.vencimentos` (RN-PAT-06); `dizimoAoSupremoConcilio` ↔ RN-PAT-05; `patrimonio` ↔ `DeliberacaoPatrimonial`.
 
 ---
 
@@ -467,8 +570,18 @@ comungantes em 01/01 · admitidos por profissão de fé / batismo e profissão /
 
 ---
 
-## Resumo — 🟢 MVP (13 entidades)
+## Resumo — 🟢 MVP (v2)
 
-`Igreja` · `Pessoa` · `VinculoFamiliar` · `Membro` · `Admissao` · `Demissao` · `CartaDeTransferencia` · `Oficio` · `Ordenacao` · `Mandato` · `RelacaoPastoral` · `CargoDaMesa` · `Reuniao` + `Convocacao` + `Presenca` + `Resolucao` + `Ata` · `Assembleia`/`Eleicao`/`AptoAVotar`/`Candidatura` · `AtoPastoral` + `ParticipanteAtoPastoral` · `RelatorioAnual` + `EstatisticaAnual`
+**Núcleo**: `Igreja` · `Pessoa` · `VinculoFamiliar` · `Membro` · `Admissao` · `Demissao`
+**Oficialato**: `Oficio` · `Ordenacao` · `Mandato` · `RelacaoPastoral` · `CargoDaMesa`
+**Conciliar**: `Reuniao` · `Convocacao` · `Presenca` · `Resolucao` · `Ata`
+**Assembleia**: `Assembleia` · `Eleicao` · `AptoAVotar` · `Candidatura`
+**Atos**: `AtoPastoral` · `ParticipanteAtoPastoral`
+**Estrutura** *(novo na v2)*: `Congregacao` · `OrganizacaoInterna` · `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`
+**Saída**: `RelatorioAnual` · `EstatisticaAnual` · `RelatorioFinanceiroAnual` *(novo na v2)*
 
-Com essas, o Conselho já cumpre integralmente o Art. 83, alíneas *b*, *d*, *j*, *l*, *m* — que é a obrigação constitucional mínima de registro da igreja local.
+Com essas, o Conselho cumpre integralmente o Art. 83, alíneas *b*, *d*, *j*, *l*, *m*, **e emite o formulário CSM-IPB completo** — que é a obrigação constitucional mínima de registro da igreja local (Art. 68).
+
+`CartaDeTransferencia` permanece 🟡: em 2025 houve apenas 2 transferências expedidas e 17 recebidas, contra 121 admissões por jurisdição. É baixo volume e não bloqueia o relatório.
+
+**Teste de aceitação do MVP**: importar o CSV e reproduzir exatamente o relatório de 2025 — 1.404 comungantes (662 M / 742 F), 265 não comungantes (109 M / 156 F), rol de 1.669. Ver doc 09 §5.
