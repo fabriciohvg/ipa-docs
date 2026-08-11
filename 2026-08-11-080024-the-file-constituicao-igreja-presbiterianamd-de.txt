@@ -1,0 +1,2857 @@
+╭─── Claude Code v2.1.220 ─────────────────────────────────────────────────────╮
+│                                                    │ Tips for getting        │
+│          Welcome back Fabrício Guimarães!          │ started                 │
+│                                                    │ Run /init to create a … │
+│                       ▐▛███▜▌                      │ ─────────────────────── │
+│                      ▝▜█████▛▘                     │ What's new              │
+│                        ▘▘ ▝▝                       │ Bug fixes and reliabil… │
+│     Opus 5 · Claude Pro · llm@flennar.com.br's     │ Added gateway spend-li… │
+│     Organization                                   │ Added a workspace trus… │
+│                 ~/Projects/ipa/docs                │ /release-notes for more │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+❯ the file @constituicao-igreja-presbiteriana.md defines the constitution of    
+  the Igreja Presbiteriana do Brasil (IPB); my goal is to develop a web app     
+  management system based in this doc focused to be used by only one            
+  prebyterian church, in this case the Igreja Presbiteriana de Anápolis, which  
+  is local church, that based on the IPB constitution, have ministers,          
+  oficcials, can have congregations, a counsil, assembly and everything in the  
+  scope of a local chruch. based in this doc i want to define the entities of   
+  this project, how everything will relate each other. two points are really    
+  important for now: 1. this system will be used by the churchs staff, 2. for   
+  now, to reduce complexity, i will not define the level/permissions of each    
+  user, not think about auth and things like that, my goal is to define the     
+  entities necessary for this management system based on the IPB contitution    
+  scoped for use by a local church, so thing related to the Presbíterio, Sínodo 
+  or IPB Concílio are out of scope (unless you indentify something important).  
+  i have adhd, so i need your help to breakdown the steps necessaries to move   
+  the IPB constitution to a modeled documentation to indentify entities and     
+  specs for this project; every response guide, definition or anything you give 
+  to me must be a new MD file in this folder project.                           
+
+⏺ I'll start by reading the constitution document to understand what we're
+  working with.
+
+  Read 1 file, listed 1 directory (ctrl+o to expand)
+
+⏺ I read the full constitution (152 articles). Now I'll create the documentation
+  set. Writing in pt-BR since the whole ubiquitous language (presbítero
+  regente, rol de comungantes, jubilação) has no clean English equivalent — say
+  the word and I'll translate.
+
+⏺ Write(00-COMECE-AQUI.md)
+  ⎿  Wrote 38 lines to 00-COMECE-AQUI.md
+      1 # 00 — Comece aqui
+      3 Mapa dos documentos de modelagem do sistema de gestão da **Igreja
+        PB (CI/IPB).
+      4 
+      6 
+        Toda regra do sistema precisa apontar para um artigo (ex.: `CI Ar
+        ão vem da Constituição, é escolha da IPA).
+      8 2. **Escopo**: apenas o que uma **igreja local** faz. Presbitério
+        ai e o que entra), nunca como funcionalidade.
+         a Con
+     … +50 lines (ctrl+o to expand)
+
+⏺ Write(01-roadmap-modelagem.md)
+  ⎿  Wrote 124 lines to 01-roadmap-modelagem.md
+      1 # 01 — Roadmap: da Constituição ao modelo
+      2 
+         em **entidades + regras + specs** prontas para virar código.
+      4 
+      5 Formato pensado para TDAH: cada passo tem **1 entregável**, **cri
+        elógio). Nunca faça dois passos no mesmo dia se estiver rendendo 
+        pouco — a ordem importa mais que a velocidade.
+      6 
+      8 
+      9 ## Visão geral das fases
+     … +161 lines (ctrl+o to expand)
+
+⏺ Write(02-glossario-dominio.md)
+  ⎿  Wrote 81 lines to 02-glossario-dominio.md
+       1 # 02 — Glossário do domínio (linguagem ubíqua)
+       2 
+       3 Termo canônico → significado na CI/IPB → como aparece no modelo.
+       5 
+       6 ## Estrutura e governo
+       7 
+       8 | Termo | Significado | No modelo |
+      10 | **Igreja local** | Comunidade de crentes professos com governo
+          próprio, que reside no Conselho (Art. 4º) | `Igreja` (singleton
+          — a IPA) |
+     … +161 lines (ctrl+o to expand)
+
+⏺ Write(03-regras-constitucionais-igreja-local.md)
+  ⎿  Wrote 310 lines to 03-regras-constitucionais-igreja-local.md
+      1 # 03 — Regras constitucionais aplicáveis à igreja local
+      2 
+        na de Anápolis**.
+      4 
+      5 **Convenções**
+      7 - Tipo: `ESTRUTURA` (algo existe) · `RESTRIÇÃO` (validação) · `PR
+        OCESSO` (sequência de atos) · `PRAZO` (temporal) · `REGISTRO` (ob
+        rigação de guardar dado)
+        não executa.
+      9 - Artigos citados são da CI/IPB.
+     … +627 lines (ctrl+o to expand)
+
+⏺ Write(04-modelo-de-entidades.md)
+  ⎿  Wrote 474 lines to 04-modelo-de-entidades.md
+      1 # 04 — Modelo de entidades (v1)
+      2 
+      3 Modelo de domínio da IPA derivado da CI/IPB. Cada entidade traz a
+        (s) regra(s) `RN-XX-00` do doc 03 que a justificam.
+      4 
+      5 **Legenda de prioridade**: 🟢 MVP · 🟡 v2 · ⚪ backlog
+      6 
+      7 ---
+      8 
+      9 ## Princípios estruturais (leia antes das tabelas)
+     … +637 lines (ctrl+o to expand)
+
+⏺ Write(05-maquinas-de-estado.md)
+  ⎿  Wrote 218 lines to 05-maquinas-de-estado.md
+      1 # 05 — Máquinas de estado
+      2 
+        la. Cada transição indica o **ato que a autoriza** e a regra `RN-
+        XX-00`.
+      4 
+        vento só existe se houver `Resolucao`** — exceto os automáticos p
+        or decurso de prazo, que o sistema propõe e o Conselho homologa.
+      6 
+      8 
+      9 ## 1. Membro comungante
+     … +294 lines (ctrl+o to expand)
+
+⏺ Write(06-modulos-e-casos-de-uso.md)
+  ⎿  Wrote 248 lines to 06-modulos-e-casos-de-uso.md
+      1 # 06 — Módulos e casos de uso
+      2 
+      3 Fatiamento funcional do sistema. Cada módulo lista entidades, cas
+        os de uso e as regras `RN-XX-00` que ele precisa cumprir.
+      4 
+      5 **Prioridade**: 🟢 MVP · 🟡 v2 · ⚪ backlog
+      6 **IDs de caso de uso**: `UC-<MÓD>-<nº>`
+      7 
+      8 Ordem de construção (dependência real):
+      9 `1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9`
+     … +337 lines (ctrl+o to expand)
+
+⏺ Write(07-decisoes-em-aberto.md)
+  ⎿  Wrote 197 lines to 07-decisoes-em-aberto.md
+      1 # 07 — Decisões em aberto
+      2 
+         Conselho/secretaria da IPA) pode responder. Cada uma vem com **m
+        inha recomendação já marcada** — se concordar, é só confirmar; se
+         discordar, troque.
+      5 Formato: `[ ]` pendente · `[x]` decidido. Anote a resposta na lin
+        ha **Decisão:**.
+      6 
+      8 
+      9 # BLOCO A — Bloqueantes (responda estas 5 primeiro)
+     … +257 lines (ctrl+o to expand)
+
+  Listed 1 directory, ran 1 shell command, wrote 2 memories (ctrl+o to expand)
+
+⏺ Done. 7 arquivos criados em docs/, escritos em pt-BR (a linguagem ubíqua do
+  domínio é toda portuguesa — "presbítero regente", "plena comunhão", "ad
+  referendum" não sobrevivem à tradução). Se preferir inglês, é só pedir.
+
+  Comece por 00-COMECE-AQUI.md — é o índice, e termina com uma única próxima
+  ação.
+
+  ┌───────────────────────────────────────────┬──────────────────────────────┐
+  │                  Arquivo                  │          O que tem           │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 00-COMECE-AQUI.md                         │ Mapa + regras do projeto +   │
+  │                                           │ próxima ação (uma só)        │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │                                           │ 6 fases, cada uma com 1      │
+  │ 01-roadmap-modelagem.md                   │ entregável e critério de     │
+  │                                           │ "pronto"                     │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 02-glossario-dominio.md                   │ ~60 termos: significado na   │
+  │                                           │ CI → nome no modelo          │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │                                           │ ~130 regras numeradas        │
+  │ 03-regras-constitucionais-igreja-local.md │ (RN-MEM-23…), cada uma com   │
+  │                                           │ artigo                       │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 04-modelo-de-entidades.md                 │ ~40 entidades, atributos,    │
+  │                                           │ invariantes, diagrama ER     │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 05-maquinas-de-estado.md                  │ 8 ciclos de vida + tabela de │
+  │                                           │  gatilhos automáticos        │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 06-modulos-e-casos-de-uso.md              │ 9 módulos, ~90 casos de uso, │
+  │                                           │  ordem de entrega            │
+  ├───────────────────────────────────────────┼──────────────────────────────┤
+  │ 07-decisoes-em-aberto.md                  │ Sua parte — 5 decisões       │
+  │                                           │ bloqueantes com recomendação │
+  └───────────────────────────────────────────┴──────────────────────────────┘
+
+  Quatro achados que mudam o modelo e não são óbvios lendo a Constituição de
+  corrida:
+
+  1. Pastor não é membro da igreja. Ele pertence ao rol do Presbitério (Art. 27
+  §2º, 23 §3º). Se Pastor herdar de Membro, o rol e a estatística ao Presbitério
+  saem errados.
+  2. Ofício é perpétuo, exercício é temporário (Art. 25 §1º). Ordenação acontece
+  uma vez; mandato se repete. Reeleito é reinstalado, nunca reordenado
+  (Art. 109). São duas tabelas.
+  3. Carta de transferência expedida não tira ninguém do rol (Art. 22). O membro
+  só sai quando a igreja de destino confirma. Existe um estado intermediário
+  que quase todo sistema de igreja perde.
+  4. "Em plena comunhão" é derivado, não digitado. É a checagem mais usada do
+  sistema inteiro — voto, elegibilidade, Ceia, apresentar filho ao batismo.
+
+  Duas coisas que não estão neste repositório e limitam o modelo: o Código de 
+  Disciplina (a CI o cita nos Arts. 151–152 mas não o contém — por isso M9 ficou
+  em esqueleto) e o formulário de estatística que o Presbitério exige (item B4
+  — é o de maior retorno por esforço na lista).
+
+  Quando quiser seguir: responda o bloco A do doc 07 e eu gero o schema de banco
+  e a spec do módulo 1.
+
+✻ Sautéed for 12m 37s
+
+※ recap: I read the IPB constitution and created seven modeling docs in docs/ defining the entities, rules, and modules for the Anápolis church system. Next: answer block A (five blocking decisions) in 07-decisoes-em-aberto.md so I can generate the database schema. (disable recaps in /config)
+
+❯ done; @07-decisoes-em-aberto.md respondido.                                   
+  ⎿  Read 07-decisoes-em-aberto.md (198 lines)
+
+  Listed 1 directory (ctrl+o to expand)
+
+⏺ The statistics form is the highest-value input. Reading it first.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+⏺ The PDF extracted cleanly — and it changes several things. It's the official
+  CSM-IPB 2021 v8.0 form, filled for 2025: 1.404 comungantes + 265 não 
+  comungantes = 1.669 membros, 9 pastores, 21 presbíteros, 28 diáconos, 2
+  congregações, 1 ponto de pregação.
+
+⏺ Write(08-analise-relatorio-estatistico.md)
+  ⎿  Wrote 275 lines to 08-analise-relatorio-estatistico.md
+       1 # 08 — Análise do relatório estatístico oficial (CSM-IPB 2021 v8
+       2 
+         sticas de Comunidade Presbiteriana*, exercício **2025**, preench
+       4 Sínodo de Anápolis (SAN) · Presbitério de Anápolis (PANA) · form
+       5 
+       6 > **Este documento é o contrato de saída do sistema.** Toda a mo
+         ozinho (RN-REL-04). Onde o modelo não consegue derivar um campo 
+         ontradas (§6).
+       8 ---
+      10 ## 1. Porte real da IPA (muda decisões de UX)
+     … +391 lines (ctrl+o to expand)
+
+⏺ Write(09-mapeamento-importacao-csv.md)
+  ⎿  Wrote 279 lines to 09-mapeamento-importacao-csv.md
+      1 # 09 — Mapeamento da importação do rol (CSV → modelo)
+      2 
+        1.669+ linhas.
+      4 
+      5 > **A natureza do problema**: o CSV é um **registro achatado — um
+        mportação não é um `COPY`; é uma **explosão de 1 linha em até 8 r
+        egistros**. Este documento define essa explosão.
+      6 
+      8 
+      9 ## 1. A explosão: 1 linha → N registros
+     … +400 lines (ctrl+o to expand)
+
+⏺ Now updating the model to v2 with what the form and CSV revealed.
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 22 lines, removed 1 line
+      1 -# 04 — Modelo de entidades (v1)                                 
+      1 +# 04 — Modelo de entidades (v2)                                 
+      2  
+      3  Modelo de domínio da IPA derivado da CI/IPB. Cada entidade traz 
+         a(s) regra(s) `RN-XX-00` do doc 03 que a justificam.
+      4  
+     ...
+       6  
+       7  ---
+       8  
+       9 +## Changelog v1 → v2                                           
+      10 +                                                               
+      11 +Ajustes decorrentes das decisões do doc 07, do relatório oficia
+         +l (doc 08) e do CSV de origem (doc 09).                        
+      12 +                                                               
+      13 +| # | Mudança | Origem |                                       
+      14 +|---|---|---|                                                  
+      15 +| 1 | `Congregacao` promovida a 🟢 | Decisão A3-b: 2 congregaçõ
+         +es + 1 ponto de pregação existem hoje |                        
+      16 +| 2 | `SociedadeInterna` substituída por **`OrganizacaoInterna`
+         +** com dois eixos (`natureza` × `categoriaIPB`), promovida a 🟢
+         + | Doc 08 §3.3 — o formulário exige contagem de departamentos s
+         +em estatuto |                                                  
+      17 +| 3 | 🆕 **`EscolaDominical`**, `TurmaEBD`, `AtuacaoEBD` | Doc 
+         +08 §6.1 — Seção II do formulário |                             
+      18 +| 4 | 🆕 **`VinculoMinisterial`** (licenciados e candidatos) | 
+         +Doc 08 §3.1 |                                                  
+      19 +| 5 | 🆕 **`RelatorioFinanceiroAnual`** (totais anuais, sem mód
+         +ulo de finanças) | Doc 08 §5 — preserva a decisão A5-a |       
+      20 +| 6 | `Demissao.forma` ganha `ORDENACAO_AO_MINISTERIO` e `MOVIM
+         +ENTO_PARA_ROL_SEPARADO` | Doc 08 §4.1 — linhas do formulário of
+         +icial |                                                        
+      21 +| 7 | `AtoPastoral.oficianteId` passa a **opcional**, com `ofic
+         +ianteNomeExterno` e `igrejaExternaNome` | Doc 09 §2.5 — atos hi
+         +stóricos de outras igrejas |                                   
+      22 +| 8 | `Igreja` ganha siglas, caixa postal, telefones, e-mail e 
+         +site | Doc 08 §2 — Seção I do formulário |                     
+      23 +| 9 | `Pessoa` ganha `naturalidade`, `idLegado` e campos-texto 
+         +de filiação/cônjuge | Doc 09 §2.1 e §2.6 |                     
+      24 +| 10 | `EstatisticaAnual` reescrita para espelhar o formulário 
+         +CSM-IPB campo a campo | Doc 08 §4 |                            
+      25 +| 11 | Regime excepcional do Art. 76 §1º rebaixado a ⚪ | 21 pr
+         +esbíteros — nunca se aplica (doc 08 §1) |                      
+      26 +| 12 | Toda contagem estatística passa a ser segmentada por **s
+         +exo** | Doc 08 §4 |                                            
+      27 +                                                               
+      28 +---                                                            
+      29 +                                                               
+      30  ## Princípios estruturais (leia antes das tabelas)
+      31  
+      32  1. **`Pessoa` é o registro único.** Membro, presbítero, diácono
+          , pastor, funcionário e visitante são **papéis** ligados à mesm
+          a pessoa. Nunca duplicar pessoa por papel.
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 9 lines, removed 4 lines
+       92  | Campo | Tipo | Obs |
+       93  |---|---|---|
+       94  | `nome` | texto | "Igreja Presbiteriana de Anápolis" |
+       95 -| `cnpj` | texto | RN-IGR-03 |                                
+       96 -| `dataOrganizacao` | data | quando foi organizada em igreja (
+          -CI Art. 5º) |                                                 
+       97 -| `presbiterioNome` | texto | fronteira — só referência |     
+       98 -| `sinodoNome` | texto | fronteira |                          
+       95 +| `cnpj` | texto | RN-IGR-03 — `00.045.369/0001-10` |         
+       96 +| `dataOrganizacao` | data | `14/07/1953` (CI Art. 5º) |      
+       97 +| `presbiterioNome` / `presbiterioSigla` | texto | fronteira —
+          + "Presbitério de Anápolis" / `PANA` |                         
+       98 +| `sinodoNome` / `sinodoSigla` | texto | fronteira — "Sínodo d
+          +e Anápolis" / `SAN` |                                         
+       99  | `endereco` | embutido | |
+      100 +| `caixaPostal` / `caixaPostalCep` | texto | Seção I do formul
+          +ário |                                                        
+      101 +| `telefones[]` | lista | **lista**, não campo único |        
+      102 +| `email` / `site` | texto | Seção I do formulário |          
+      103  | `estatutoVigenteUrl` / `estatutoAprovadoEm` | arquivo/data |
+            RN-ASM-03 *c* |
+      104  
+      105 +*Campos de identificação alinhados ao formulário CSM-IPB 2021 
+          +v8.0, Seção I (doc 08 §2).*                                   
+      106 +                                                              
+      107  *Singleton porque o sistema é mono-igreja. Manter como tabela 
+           de 1 linha, não como constante em código — facilita replicar p
+           ara outra igreja depois.*
+      108  
+      109  ### 🟢 `Pessoa`
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 6 lines, removed 2 lines
+      113  |---|---|---|
+      114  | `nomeCompleto` | texto | |
+      115  | `dataNascimento` | data | dirige RN-MEM-04 (18 anos), RN-MEM
+           -21 *c* |
+      116 -| `sexo` | enum M/F | **necessário** por RN-OFI-03 (elegibilid
+          -ade ao oficialato) |                                          
+      116 +| `sexo` | enum M/F | **obrigatório**: RN-OFI-03 (elegibilidad
+          +e) **e** segmentação de toda a estatística (doc 08 §4) |      
+      117 +| `naturalidade` | texto | do CSV de origem |                 
+      118  | `estadoCivil` | enum | |
+      119  | `civilmenteCapaz` | booleano | RN-MEM-04, RN-ASM-04 |
+      120  | `cpf`, `rg` | texto | |
+      121  | `contatos` | lista | telefone, e-mail, WhatsApp |
+      122  | `endereco` | embutido | usado em RN-MEM-12 (residência nos l
+           imites da igreja) |
+      122 -| `profissao`, `escolaridade` | texto | ⚪ |                  
+      123 +| `profissao`, `profissaoInformada`, `escolaridade` | texto | 
+          +do CSV de origem |                                            
+      124 +| `nomePaiTexto`, `nomeMaeTexto`, `nomeConjugeTexto` | texto |
+          + **fallback** quando o casamento por nome falha na importação 
+          +(doc 09 §2.6) |                                               
+      125 +| `dataCasamento` | data | do CSV de origem |                 
+      126  | `dataFalecimento` | data | dispara RN-MEM-20 *f* |
+      127  | `foto` | arquivo | 🟡 |
+      128  | `observacoes` | texto | |
+      129 +| `idLegado` | texto | chave da planilha de origem — preservar
+          + para reimportação e auditoria |                              
+      130  
+      131  ### 🟢 `VinculoFamiliar`
+      132  > RN-MEM-11 *a*/*b*, RN-TRF-03, RN-ATO-04 — a CI exige saber q
+           uem são **pais ou responsáveis** do não comungante
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 1 line, removed 1 line
+      153  | Campo | Tipo | Obs |
+      154  |---|---|---|
+      155  | `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registr
+           o de membro nesta igreja |
+      156 -| `numeroRol` | inteiro | número no rol, sequencial |         
+      156 +| `numeroRol` | inteiro | sequencial **permanente, nunca reuti
+          +lizado** (decisão B3-a); no CSV é `numero_ordem` |            
+      157  | `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` — RN-M
+           EM-02 |
+      158  | `situacao` | enum **derivado** | `ATIVO` \| `EM_DISCIPLINA` 
+           \| `ROL_SEPARADO` \| `TRANSFERENCIA_EM_CURSO` \| `DEMITIDO` |
+      159  | `congregacaoId` | ref, opcional | lotação — RN-CNG-04 |
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 4 lines
+      162  | `dataAdmissao` | data | denormalizado da última `Admissao` |
+      163  | `dataDemissao` | data | denormalizado da `Demissao` |
+      164  | `emPlenaComunhao` | booleano **derivado** | RN-MEM-06, RN-EL
+           E-04 — ver regra abaixo |
+      165 +| `ataAdmissaoLegado` | texto | nº/data da ata de admissão vin
+          +da da planilha; **não** vincula a `Ata` (decisão A2-a) |      
+      166 +| `idLegado` | texto | rastreio da migração |                 
+      167  
+      168 +⚠️ **`situacao = ROL_SEPARADO` não conta como membro ativo** n
+          +a estatística. O formulário oficial lista "Rol Separado" entre
+          + as **demissões** (doc 08 §4.1) — entrar no rol separado é uma
+          + saída da contagem de comungantes, não um estado paralelo.    
+      169 +                                                              
+      170  **`emPlenaComunhao` = `categoria == COMUNGANTE` E `situacao ==
+            ATIVO` E não existe `MedidaDisciplinar` vigente que suspenda 
+           privilégios.**
+      171  Nunca é campo editável. É a checagem mais usada do sistema int
+           eiro (voto, elegibilidade, Ceia, apresentar filho ao batismo, 
+           compor assembleia).
+      172  
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 8 lines, removed 1 line
+      193  | Campo | Tipo |
+      194  |---|---|
+      195  | `membroId`, `data` | |
+      196 -| `forma` | enum — `EXCLUSAO_DISCIPLINA` \| `EXCLUSAO_A_PEDIDO
+          -` \| `EXCLUSAO_POR_AUSENCIA` \| `CARTA_TRANSFERENCIA` \| `JURI
+          -SDICAO_ASSUMIDA_POR_OUTRA` \| `FALECIMENTO` \| `MAIORIDADE_18`
+          - \| `PROFISSAO_FE` \| `SOLICITACAO_DOS_PAIS` |                
+      196 +| `forma` | enum — `EXCLUSAO_DISCIPLINA` \| `EXCLUSAO_A_PEDIDO
+          +` \| `EXCLUSAO_POR_AUSENCIA` \| `CARTA_TRANSFERENCIA` \| `JURI
+          +SDICAO_ASSUMIDA_POR_OUTRA` \| `FALECIMENTO` \| **`ORDENACAO_AO
+          +_MINISTERIO`** \| **`MOVIMENTO_PARA_ROL_SEPARADO`** \| `MAIORI
+          +DADE_18` \| `PROFISSAO_FE` \| `SOLICITACAO_DOS_PAIS` |        
+      197  | `resolucaoId` | ref |
+      198  | `igrejaDestinoNome` | texto |
+      199  | `motivo` | texto |
+      200 +| `origemMigracao` | booleano | true quando importado sem reso
+          +lução vinculada |                                             
+      201  
+      202  *Nota: `MAIORIDADE_18` e `PROFISSAO_FE` só se aplicam a não co
+           mungantes (RN-MEM-21). No caso de profissão de fé, é demissão 
+           do rol de não comungantes **seguida de admissão** no de comung
+           antes — o sistema deve fazer os dois num só fluxo.*
+      203  
+      204 +**Duas formas adicionadas na v2, ambas linhas do formulário of
+          +icial (doc 08 §4.1):**                                        
+      205 +- `ORDENACAO_AO_MINISTERIO` — membro ordenado ministro passa a
+          +o rol do Presbitério (RN-MEM-24 / CI Art. 23 §3º). Era tratado
+          + como fronteira informativa na v1; é saída do rol.            
+      206 +- `MOVIMENTO_PARA_ROL_SEPARADO` — a entrada no rol separado su
+          +btrai da contagem de comungantes (RN-MEM-23). Se a pessoa for 
+          +depois localizada, gerar `Admissao(RESTAURACAO)`.             
+      207 +                                                              
+      208 +⚠️ **Mapeamento para o formulário**: o relatório do Presbitéri
+          +o funde as três exclusões numa linha só ("Exclusão") e as duas
+          + jurisdições em outra ("Jurisdição"). O modelo guarda a forma 
+          +**granular** da Constituição e agrega na hora de emitir — nunc
+          +a o contrário.                                                
+      209 +                                                              
+      210  ### 🟢 `CartaDeTransferencia`
+      211  > RN-TRF-01 a RN-TRF-08 — **a entidade mais mal modelada nos s
+           istemas de igreja existentes**
+      212  
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 4 lines, removed 1 line
+      414  |---|---|---|
+      415  | `tipo` | enum | `BATISMO_INFANTIL` \| `BATISMO_ADULTO` \| `P
+           ROFISSAO_DE_FE` \| `SANTA_CEIA` \| `CASAMENTO` \| `FUNERAL` \|
+            `VISITA_PASTORAL` \| `ACONSELHAMENTO` \| `UNCAO_ENFERMOS` \| 
+           `BENCAO_APOSTOLICA` |
+      416  | `data`, `local` | | |
+      417 -| `oficianteId` | ref Pessoa | **validar RN-ATO-01**: sacramen
+          -tos e casamento só por quem tem `Oficio.tipo = MINISTRO` ou `R
+          -elacaoPastoral` ativa |                                       
+      417 +| `oficianteId` | ref Pessoa, **opcional** | **validar RN-ATO-
+          +01**: sacramentos e casamento só por quem tem `Oficio.tipo = M
+          +INISTRO` ou `RelacaoPastoral` ativa |                         
+      418 +| `oficianteNomeExterno` | texto | pastor de outra igreja, já 
+          +falecido ou inexistente como `Pessoa` — **indispensável para o
+          +s ~1.669 atos históricos** (doc 09 §2.5) |                    
+      419 +| `igrejaExternaNome` | texto | quando o ato ocorreu em outra 
+          +igreja |                                                      
+      420 +| `inferido` | booleano | tipo deduzido na importação (ex.: ba
+          +tismo infantil × adulto), marcado para revisão |              
+      421  | `congregacaoId` | ref, opcional | |
+      422  | `reportadoAoConselhoEm` | data | RN-ATO-03 |
+      423  | `resolucaoRegistroId` | ref | resolução que registrou o rela
+           tório de atos |
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 42 lines, removed 11 lines
+      450  
+      451  ---
+      452  
+      453 -## 8. Congregações e sociedades internas                      
+      453 +## 8. Congregações, organizações internas e Escola Dominical  
+      454  
+      455 -### 🟡 `Congregacao`                                          
+      456 -> RN-CNG-01 a RN-CNG-04                                       
+      455 +### 🟢 `Congregacao`                                          
+      456 +> RN-CNG-01 a RN-CNG-04 · **promovida a MVP** pela decisão A3-
+          +b                                                             
+      457  
+      458 -`nome`, `tipo` (`PONTO_DE_PREGACAO` \| `CONGREGACAO`), `endere
+          -co`, `dataEstabelecimento`, `resolucaoId` (RN-CON-36), `respon
+          -savelId` (presbítero ou pastor designado), `status` (`ATIVA` \
+          -| `ORGANIZADA_EM_IGREJA` \| `DISSOLVIDA`).                    
+      458 +`nome`, `tipo` (`PONTO_DE_PREGACAO` \| `CONGREGACAO`), `endere
+          +co`, `dataEstabelecimento`, `resolucaoId` (RN-CON-36), `respon
+          +savelId` (presbítero ou pastor designado), `status` (`ATIVA` \
+          +| `ORGANIZADA_EM_IGREJA` \| `DISSOLVIDA`), `idLegado`.        
+      459  
+      460  *Não tem rol próprio (RN-CNG-04): membros são da IPA, com `Mem
+           bro.congregacaoId` apontando para cá.*
+      461 +*A IPA tem hoje **2 congregações e 1 ponto de pregação** — con
+          +tados separadamente na Seção II do formulário. A coluna `id_ig
+          +reja` do CSV possivelmente aponta para cá (doc 09, P9).*      
+      462  
+      462 -### 🟡 `SociedadeInterna`                                     
+      463 -> RN-SOC-01 a RN-SOC-04                                       
+      463 +### 🟢 `OrganizacaoInterna`                                   
+      464 +> RN-SOC-01 a RN-SOC-04, RN-CON-41 · **substitui `SociedadeInt
+          +erna` da v1** (doc 08 §3.3)                                   
+      465  
+      465 -`nome` (SAF, UMP, UPH, UPA, UCP…), `sigla`, `estatutoAprovadoE
+          -m`, `resolucaoAprovacaoEstatutoId`, `regimentoUrl`, `status`. 
+      466 +**Dois eixos independentes.** É o que reconcilia a decisão B2 
+          +("nenhuma sociedade com estatuto") com o relatório 2025 ("4 de
+          +partamentos, 645 membros").                                   
+      467  
+      467 -### 🟡 `DiretoriaSociedade`                                   
+      468 -`sociedadeInternaId`, `pessoaId`, `cargo`, `anoExercicio`, `da
+          -taPosse`, `resolucaoPosseId` (RN-SOC-01).                     
+      468 +| Campo | Tipo | Obs |                                        
+      469 +|---|---|---|                                                 
+      470 +| `nome` | texto | |                                          
+      471 +| `natureza` | enum | `SOCIEDADE_COM_ESTATUTO` \| `DEPARTAMENT
+          +O_OU_MINISTERIO` |                                            
+      472 +| `categoriaIPB` | enum | `UCP` \| `UPA` \| `UMP` \| `SAF` \| 
+          +`UPH` \| `OUTRAS` — **existe só para somar as linhas do formul
+          +ário** |                                                      
+      473 +| `numeroDeMembrosVinculados` | inteiro | Seção II do formulár
+          +io |                                                          
+      474 +| `estatutoAprovadoEm` | data | só se `natureza = SOCIEDADE_CO
+          +M_ESTATUTO` |                                                 
+      475 +| `resolucaoAprovacaoEstatutoId` | ref | RN-SOC-01 |          
+      476 +| `regimentoUrl` | arquivo | |                                
+      477 +| `status` | enum | `ATIVA` \| `INATIVA` |                    
+      478  
+      479 +**Regra**: os deveres do Art. 83 *o*, *p*, *q* (aprovar estatu
+          +to, empossar diretoria, examinar livros) só se aplicam a `SOCI
+          +EDADE_COM_ESTATUTO`. Um ministério de louvor sem estatuto entr
+          +a na contagem do formulário e **não** dispara exame de livros 
+          +— que é exatamente a situação atual da IPA.                   
+      480 +                                                              
+      481 +### 🟡 `DiretoriaOrganizacao`                                 
+      482 +`organizacaoInternaId`, `pessoaId`, `cargo`, `anoExercicio`, `
+          +dataPosse`, `resolucaoPosseId` (RN-SOC-01).                   
+      483 +Para ministérios sem estatuto, a liderança designada por 1 ano
+          + (decisão B2) usa `Designacao` apontando para a `OrganizacaoIn
+          +terna`.                                                       
+      484 +                                                              
+      485  ### 🟡 `ExameDeLivros`
+      486  > RN-SOC-02 — Art. 83 *p* obriga o Conselho a examinar e **reg
+           istrar observações nos livros**
+      487  
+      473 -`sociedadeInternaId` (ou `juntaDiaconalId`), `exercicio`, `tip
+          -oLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`, 
+          -`observacoes`, `resolucaoId`.                                 
+      488 +`organizacaoInternaId` (ou `juntaDiaconalId`), `exercicio`, `t
+          +ipoLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`
+          +, `observacoes`, `resolucaoId`.                               
+      489  
+      490 +### 🟢 `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`          
+      491 +> 🆕 v2 — Seção II do formulário (doc 08 §6.1). A IPA declara 
+          +**3 escolas, 22 professores, 450 alunos**                     
+      492 +                                                              
+      493 +- `EscolaDominical`: `nome`, `congregacaoId` (opcional), `stat
+          +us`.                                                          
+      494 +- `TurmaEBD`: `escolaDominicalId`, `nome`, `faixaEtaria`, `ano
+          +Letivo`.                                                      
+      495 +- `AtuacaoEBD`: `pessoaId` (ou `nomeExterno`, para aluno não m
+          +embro), `turmaEBDId`, `papel` (`PROFESSOR` \| `ALUNO`), `anoLe
+          +tivo`.                                                        
+      496 +                                                              
+      497 +Os 4 números do formulário passam a ser derivados. *Nos dados 
+          +de 2025 os alunos aparecem idênticos aos de 2024 (450 e 450) —
+          + indício de número repetido por falta de controle, e o princip
+          +al argumento para modelar isto de verdade.*                   
+      498 +                                                              
+      499  ### 🟡 `JuntaDiaconal`
+      500  > RN-DIA-01 a RN-DIA-03
+      501  
+      478 -`regimentoAprovadoEm`, `resolucaoAprovacaoId`, `presidenteId`.
+          - Composição = todos os `Oficio(DIACONO, EM_EXERCICIO)`. Reuniõ
+          -es via `Reuniao(orgao = JUNTA_DIACONAL)`.                     
+      502 +`regimentoAprovadoEm`, `resolucaoAprovacaoId`, `presidenteId`.
+          + Composição = todos os `Oficio(DIACONO, EM_EXERCICIO)` — **28 
+          +diáconos** hoje. Reuniões via `Reuniao(orgao = JUNTA_DIACONAL)
+          +`.                                                            
+      503  
+      504 +### 🟡 `VinculoMinisterial`                                   
+      505 +> 🆕 v2 — Seção II do formulário, linhas "Licenciados" e "Cand
+          +idatos" (doc 08 §3.1)                                         
+      506 +                                                              
+      507 +`pessoaId`, `tipo` (`CANDIDATO` \| `LICENCIADO`), `dataAtestad
+          +oDoConselho`, `resolucaoAtestadoId`, `dataLicenciatura`, `data
+          +Ordenacao`, `status` (`ATIVO` \| `ORDENADO` \| `CASSADO`), `pr
+          +esbiterioNome`.                                               
+      508 +                                                              
+      509 +O processo é do Presbitério, mas o **atestado de vocação é ato
+          + do Conselho** (CI Art. 115 *b*) — logo é `Resolucao`, logo pe
+          +rtence a este sistema. Quando o candidato é ordenado, dispara 
+          +`Demissao(ORDENACAO_AO_MINISTERIO)` no rol.                   
+      510 +                                                              
+      511  ---
+      512  
+      513  ## 9. Relatórios e estatística
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 30 lines, removed 2 lines
+      518  `exercicio` (ano), `textoAtividades`, `apresentadoNaAssembleia
+           Id` (RN-REL-03), `enviadoAoPresbiterioEm` (RN-REL-04), `arquiv
+           oUrl`.
+      519  
+      520  ### 🟢 `EstatisticaAnual` (calculada)
+      521 -Campos que a IPB pede historicamente (confirmar com o modelo d
+          -e formulário vigente do Presbitério — ver doc 07, decisão B4):
+      521 +**Espelha campo a campo o formulário CSM-IPB 2021 v8.0** (anal
+          +isado no doc 08). Substitui a lista especulativa da v1.       
+      522  
+      523 -comungantes em 01/01 · admitidos por profissão de fé / batismo
+          - e profissão / carta / jurisdição / restauração · demitidos po
+          -r carta / exclusão / falecimento / jurisdição assumida · comun
+          -gantes em 31/12 · não comungantes em 01/01 e 31/12 · batismos 
+          -infantis · casamentos · presbíteros em exercício · diáconos em
+          - exercício · congregações · pontos de pregação · sociedades in
+          -ternas · número de reuniões do Conselho · média de frequência 
+          -aos cultos.                                                   
+      523 +**Toda linha da Seção III é tripla: MASC · FEM · TOTAL.**     
+      524  
+      525 +| Bloco | Campos |                                            
+      526 +|---|---|                                                     
+      527 +| **Liderança formal** | pastores · licenciados · presbíteros 
+          +· diáconos · evangelistas · missionários · candidatos |       
+      528 +| **Estrutura do trabalho** | congregações · pontos de pregaçã
+          +o · escolas dominicais · professores EBD · alunos EBD ano atua
+          +l · alunos EBD ano anterior |                                 
+      529 +| **Departamentos internos** | por `categoriaIPB` (UCP/UPA/UMP
+          +/SAF/UPH/Outras): nº de departamentos e nº de membros · totais
+          + |                                                            
+      530 +| **Comungantes — admissão** | profissão de fé · profissão de 
+          +fé e batismo · transferência · **jurisdição** (a pedido + *ex 
+          +officio* somadas) · restauração · designação do Presbitério | 
+      531 +| **Comungantes — demissão** | transferência · falecimento · *
+          +*exclusão** (disciplina + a pedido + por ausência somadas) · o
+          +rdenação · rol separado |                                     
+      532 +| **Não comungantes — admissão** | batismo · transferência · j
+          +urisdição *ex officio* |                                      
+      533 +| **Não comungantes — demissão** | profissão de fé · transferê
+          +ncia · falecimento · exclusão |                               
+      534 +| **Fechamento** | ano anterior · diferença (admissões − demis
+          +sões) · ano atual · **rol atual** (comungantes + não comungant
+          +es) |                                                         
+      535 +                                                              
+      536  **Deve ser 100% derivada dos eventos.** Se alguém precisar dig
+           itar um número aqui, o modelo de eventos está incompleto.
+      537  
+      538 +**Validação de fechamento obrigatória** (doc 08 §4.3) — o rela
+          +tório não pode ser emitido se falhar, em cada coluna de sexo s
+          +eparadamente:                                                 
+      539 +                                                              
+      540 +```                                                           
+      541 +ano_atual = ano_anterior + Σ admissões − Σ demissões          
+      542 +rol_atual = comungantes + não_comungantes                     
+      543 +```                                                           
+      544 +                                                              
+      545 +### 🟢 `RelatorioFinanceiroAnual`                             
+      546 +> 🆕 v2 — Seção IV do formulário (doc 08 §5). **Não é módulo d
+          +e finanças**: são ~40 totais digitados uma vez por ano, preser
+          +vando a decisão A5-a                                          
+      547 +                                                              
+      548 +`exercicio`, `quadro` (`REALIZADO_ANO_ANTERIOR` \| `PREVISAO_P
+          +ROXIMO_EXERCICIO`), `saldoAnoAnterior`, e uma linha por rubric
+          +a:                                                            
+      549 +                                                              
+      550 +- **Receitas**: dízimos · ofertas · ofertas missionárias · ofe
+          +rtas específicas · receitas financeiras · empréstimos IPB/JPEF
+          + · parcerias · outras receitas                                
+      551 +- **Despesas**: patrimônio · causas locais · evangelismo local
+          + · missões · ação social · sustento pastoral · verba presbiter
+          +ial · dízimo ao Supremo Concílio · empréstimos IPB/JPEF · outr
+          +as despesas                                                   
+      552 +                                                              
+      553 +Totais e percentuais são **calculados**, nunca digitados. Três
+          + rubricas amarram no modelo: `sustentoPastoral` ↔ `RelacaoPast
+          +oral.vencimentos` (RN-PAT-06); `dizimoAoSupremoConcilio` ↔ RN-
+          +PAT-05; `patrimonio` ↔ `DeliberacaoPatrimonial`.              
+      554 +                                                              
+      555  ---
+      556  
+      557  ## 10. Patrimônio e finanças ⚪
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 13 lines, removed 3 lines
+      570  
+      571  ---
+      572  
+      573 -## Resumo — 🟢 MVP (13 entidades)                             
+      573 +## Resumo — 🟢 MVP (v2)                                       
+      574  
+      575 -`Igreja` · `Pessoa` · `VinculoFamiliar` · `Membro` · `Admissao
+          -` · `Demissao` · `CartaDeTransferencia` · `Oficio` · `Ordenaca
+          -o` · `Mandato` · `RelacaoPastoral` · `CargoDaMesa` · `Reuniao`
+          - + `Convocacao` + `Presenca` + `Resolucao` + `Ata` · `Assemble
+          -ia`/`Eleicao`/`AptoAVotar`/`Candidatura` · `AtoPastoral` + `Pa
+          -rticipanteAtoPastoral` · `RelatorioAnual` + `EstatisticaAnual`
+      575 +**Núcleo**: `Igreja` · `Pessoa` · `VinculoFamiliar` · `Membro`
+          + · `Admissao` · `Demissao`                                    
+      576 +**Oficialato**: `Oficio` · `Ordenacao` · `Mandato` · `RelacaoP
+          +astoral` · `CargoDaMesa`                                      
+      577 +**Conciliar**: `Reuniao` · `Convocacao` · `Presenca` · `Resolu
+          +cao` · `Ata`                                                  
+      578 +**Assembleia**: `Assembleia` · `Eleicao` · `AptoAVotar` · `Can
+          +didatura`                                                     
+      579 +**Atos**: `AtoPastoral` · `ParticipanteAtoPastoral`           
+      580 +**Estrutura** *(novo na v2)*: `Congregacao` · `OrganizacaoInte
+          +rna` · `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`          
+      581 +**Saída**: `RelatorioAnual` · `EstatisticaAnual` · `RelatorioF
+          +inanceiroAnual` *(novo na v2)*                                
+      582  
+      577 -Com essas, o Conselho já cumpre integralmente o Art. 83, alíne
+          -as *b*, *d*, *j*, *l*, *m* — que é a obrigação constitucional 
+          -mínima de registro da igreja local.                           
+      583 +Com essas, o Conselho cumpre integralmente o Art. 83, alíneas 
+          +*b*, *d*, *j*, *l*, *m*, **e emite o formulário CSM-IPB comple
+          +to** — que é a obrigação constitucional mínima de registro da 
+          +igreja local (Art. 68).                                       
+      584 +                                                              
+      585 +`CartaDeTransferencia` permanece 🟡: em 2025 houve apenas 2 tr
+          +ansferências expedidas e 17 recebidas, contra 121 admissões po
+          +r jurisdição. É baixo volume e não bloqueia o relatório.      
+      586 +                                                              
+      587 +**Teste de aceitação do MVP**: importar o CSV e reproduzir exa
+          +tamente o relatório de 2025 — 1.404 comungantes (662 M / 742 F
+          +), 265 não comungantes (109 M / 156 F), rol de 1.669. Ver doc 
+          +09 §5.                                                        
+
+⏺ Write(10-schema-banco.md)
+  ⎿  Wrote 704 lines to 10-schema-banco.md
+       1 # 10 — Schema do banco de dados (MVP)
+       3 Tradução do modelo v2 (doc 04) para tabelas. Cobre o MVP: **E1 (
+         **.
+       4 
+          ainda não está decidida (doc 07, C8) e nada aqui depende de Pos
+          MySQL ou SQLite é troca de tipos.
+       7 **Convenções**
+       8 - `snake_case` em português (decisão B6-a). Sem acentos e sem ce
+       9 - Toda tabela: `id` (uuid), `criado_em`, `atualizado_em`.
+         astoral`) são **append-only** por convenção — sem `UPDATE` fora
+     … +841 lines (ctrl+o to expand)
+
+⏺ Write(11-spec-m1-rol-de-membros.md)
+  ⎿  Wrote 252 lines to 11-spec-m1-rol-de-membros.md
+      1 # 11 — Spec M1: Pessoas e Rol de Membros
+      2 
+        o padrão fixado no doc 01, FASE 5.
+      4 
+      5 ---
+      7 ## Objetivo em uma frase
+      8 
+      9 Manter em dia o rol de membros comungantes e não comungantes da I
+        o de admissão e demissão suficiente para que a estatística anual 
+        ao Presbitério se calcule sozinha.
+     … +344 lines (ctrl+o to expand)
+
+⏺ Now updating the index so the entry point stays accurate.
+
+⏺ Update(00-COMECE-AQUI.md)  ⎿  Added 31 lines, removed 12 lines
+      13  
+      14  | # | Arquivo | O que é | Quando usar |
+      15  |---|---------|---------|-------------|
+      16 -| 01 | `01-roadmap-modelagem.md` | Passo a passo até o modelo p
+         -ronto | **Leia agora.** É seu painel de controle |             
+      16 +| 01 | `01-roadmap-modelagem.md` | Passo a passo até o modelo p
+         +ronto | Painel de controle das fases |                         
+      17  | 02 | `02-glossario-dominio.md` | Vocabulário canônico (termo 
+          → significado → entidade) | Sempre que ficar em dúvida sobre um
+           nome |
+      18  | 03 | `03-regras-constitucionais-igreja-local.md` | Regras ext
+          raídas da CI, numeradas (RN-XX-00) | Ao implementar validações 
+          |
+      19 -| 04 | `04-modelo-de-entidades.md` | Entidades, atributos, rela
+         -cionamentos, diagrama ER | Ao criar o schema do banco |        
+      19 +| 04 | `04-modelo-de-entidades.md` | **v2** — entidades, atribu
+         +tos, invariantes, diagrama ER | Referência central do modelo | 
+      20  | 05 | `05-maquinas-de-estado.md` | Ciclos de vida (membro, man
+          dato, carta, relação pastoral) | Ao implementar transições/stat
+          us |
+      21  | 06 | `06-modulos-e-casos-de-uso.md` | Módulos do app e casos 
+          de uso por entidade | Ao fatiar o backlog |
+      22 -| 07 | `07-decisoes-em-aberto.md` | O que **você** precisa deci
+         -dir, com recomendação minha | Quando travar |                  
+      22 +| 07 | `07-decisoes-em-aberto.md` | Decisões do usuário — **res
+         +pondido** | Histórico das escolhas |                           
+      23 +| 08 | `08-analise-relatorio-estatistico.md` | Decodificação do
+         + formulário CSM-IPB (contrato de saída) | Ao implementar relató
+         +rios |                                                         
+      24 +| 09 | `09-mapeamento-importacao-csv.md` | CSV de origem → mode
+         +lo, coluna a coluna | Ao construir o importador |              
+      25 +| 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices
+         + | Ao criar as migrations |                                    
+      26 +| 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo
+         + (E1) | **Para começar a codar** |                             
+      27  
+      28 +### Insumos                                                    
+      29 +                                                               
+      30 +- `constituicao-igreja-presbiteriana.md` — fonte da verdade, 15
+         +2 artigos                                                      
+      31 +- `relatorio-igreja.pdf` — relatório estatístico oficial 2025 (
+         +CSM-IPB 2021 v8.0), já analisado no doc 08                     
+      32 +                                                               
+      33  ## Estado atual
+      34  
+      35  - [x] Constituição lida e catalogada
+      27 -- [x] Roadmap definido                                         
+      28 -- [x] Glossário                                                
+      29 -- [x] Regras constitucionais extraídas (escopo igreja local)   
+      30 -- [x] Modelo de entidades v1                                   
+      31 -- [x] Máquinas de estado                                       
+      32 -- [x] Módulos e casos de uso                                   
+      33 -- [ ] **Você**: responder `07-decisoes-em-aberto.md`           
+      34 -- [ ] Modelo v2 (após decisões) → schema de banco → specs de te
+         -la                                                             
+      36 +- [x] Roadmap, glossário, regras constitucionais               
+      37 +- [x] Modelo de entidades v1 → **v2**                          
+      38 +- [x] Máquinas de estado · módulos e casos de uso              
+      39 +- [x] Decisões do bloco A e B respondidas                      
+      40 +- [x] Relatório estatístico oficial analisado                  
+      41 +- [x] Mapeamento da importação do CSV                          
+      42 +- [x] Schema do banco (MVP)                                    
+      43 +- [x] Spec do M1                                               
+      44 +- [ ] **Você**: rodar o script de perfilagem do CSV (doc 09 §8)
+         + e responder P7–P10                                            
+      45 +- [ ] Implementar E1 (migrations 001–004 + importador + rol)   
+      46  
+      47 +## Números da IPA (do relatório 2025)                          
+      48 +                                                               
+      49 +1.669 membros (1.404 comungantes · 265 não comungantes) · 9 pas
+         +tores · 21 presbíteros · 28 diáconos · 2 congregações · 1 ponto
+         + de pregação · 3 escolas dominicais.                           
+      50 +                                                               
+      51 +Isto não é uma igreja pequena — paginação, busca e importação e
+         +m lote são requisitos desde o primeiro dia.                    
+      52 +                                                               
+      53  ## Próxima ação (uma só)
+      54  
+      38 -Abra `07-decisoes-em-aberto.md` e responda **apenas o bloco A (
+         -decisões bloqueantes, 5 perguntas)**. Ignore o resto por enquan
+         -to. Sem essas 5, o modelo não fecha; com elas, o resto se resol
+         -ve sozinho.                                                    
+      55 +Rode o script do **doc 09, §8** sobre o CSV do rol e me mande a
+         + saída. Ele responde de uma vez as pendências P7, P8 e P10 — qu
+         +e são o que falta para o importador ficar pronto.              
+      56 +                                                               
+      57 +Se estiver sem energia para isso: leia só o `11-spec-m1-rol-de-
+         +membros.md`. É o que se transforma em código.                  
+
+  Wrote 2 memories (ctrl+o to expand)
+
+⏺ Feito. O PDF mudou mais coisas do que as respostas — vale ler o doc 08
+  primeiro.
+
+  Novos: 08-analise-relatorio-estatistico.md · 09-mapeamento-importacao-csv.md ·
+  10-schema-banco.md · 11-spec-m1-rol-de-membros.md
+  Atualizados: 04-modelo-de-entidades.md (→ v2, com changelog) ·
+  00-COMECE-AQUI.md
+
+  O que o relatório revelou
+
+  Ele veio preenchido para 2025, então serve de teste de aceitação pronto: 1.404
+  comungantes + 265 não comungantes = 1.669, segmentado por sexo. Se a
+  importação do CSV não reproduzir esses números exatos, o mapeamento está
+  errado. Não precisei inventar critério de qualidade.
+
+  Quatro coisas que faltavam no modelo:
+
+  1. "Ordenação" e "Rol Separado" são linhas de demissão no formulário oficial.
+  Eu tratava a ordenação ao ministério como fronteira informativa e o rol
+  separado como status paralelo — ambos são saídas do rol e subtraem da
+  contagem.
+  2. Escola Dominical não existia no modelo (3 escolas, 22 professores, 450
+  alunos — obrigatório na Seção II).
+  3. Licenciados e candidatos ao ministério também não. O gatilho é local: o
+  atestado de vocação é ato do Conselho (Art. 115 b).
+  4. AtoPastoral.oficianteId precisava ser opcional — ~1.669 batismos históricos
+  foram oficiados por pastores que nunca existirão como registro neste banco.
+
+  Duas contradições com suas respostas
+
+  Não são erros seus; são casos em que as duas coisas são verdadeiras e o modelo
+  precisava acomodar.
+
+  - B2 vs. relatório: você disse "nenhuma sociedade interna", mas o relatório de
+  2025 declara 4 departamentos com 645 membros, incluindo UCP. Resolvi com uma
+  entidade de dois eixos — natureza (com estatuto × ministério) × categoriaIPB
+  (UCP/UPA/UMP/SAF/UPH/Outras). Os deveres do Art. 83 p/q só disparam para quem
+  tem estatuto, então nada é forçado a ter um.
+  - A5 vs. Seção IV: você tirou finanças da v1, mas o formulário exige dois
+  quadros financeiros completos. O conflito é menor do que parece — ele só pede
+  totais por rubrica, uma vez por ano. Criei RelatorioFinanceiroAnual com ~40
+  campos digitados anualmente. Sua decisão fica intacta: nada de dízimos,
+  ofertas individuais ou contas a pagar.
+
+  Um alerta que vale confirmar antes de codar
+
+  Em 2025 saíram 37 não comungantes por profissão de fé e zero por exclusão.
+  Isso sugere que a IPA hoje não dá baixa por maioridade (Art. 24 c) — e há 265
+  pessoas nesse rol. Se eu ligar o gatilho automático sem confirmar, o sistema
+  vai propor centenas de exclusões no primeiro dia. Está como pendência P3 no
+  doc 08 e como risco na spec do M1.
+
+  Também: com 21 presbíteros, o regime excepcional do Art. 76 §1º (1 pastor + 1
+  presbítero) nunca se aplica aqui — saiu do MVP.
+
+  Próxima ação
+
+  Rode o script do doc 09, §8 sobre o CSV e me mande a saída. Ele responde de
+  uma vez o formato das datas (o PDF exporta em M/D/AAAA — se o CSV vier da
+  mesma origem e eu assumir D/M, corrompo 1.669 registros em silêncio), os
+  valores distintos de situacao/meio_admissao/meio_demissao, e o que é
+  id_igreja. Com isso eu escrevo o importador.
+
+  Se estiver sem energia: 11-spec-m1-rol-de-membros.md é o arquivo que vira
+  código.
+
+✻ Crunched for 13m 10s
+
+❯ adicionei o arquivo .csv atual com os registros de membros @membros_rows.csv  
+  para você analisar o conteúdo dos campos e dados armazenados em cada um para  
+  você avaliar; algumas observações que podem ser importantes neste momento: o  
+  campo `id_igreja` não possui dados consistentes e não precisa ser             
+  considerado; o campo `membro` era utilizado para armazenar (comungante, não   
+  comungante ou não membro), o campo `oficial` era utilizado para armazenar     
+  (não oficial, presbítero, presbítero em disponibilidade e diácono); o campo   
+  `situacao` era utilizado para armazenar (ativo, inativo e revisar); o campo   
+  `ata` foi criado para armazenar o número da ata das últimas                   
+  admissoes/demissoes mas representa o percentual pequeno de todo o rol; o      
+  campo `profissao_informada` era utilizado para tentar padronizar as           
+  profissões, mas não deve ser considerado. Já em relação ao relatório          
+  estatístico, os números informados, especialmente de membros, não vai bater   
+  com o Rol e não devem ser usados como critério de validação; as informações   
+  referentes a sociedades internas e ministérios também não devem ser           
+  consideradas, atualmente temos vários ministérios designados, mas sem         
+  formalidade a não ser registro em ata dos respectivos líderes; quanto as      
+  informações de escola bíblica, também não devem ser consideradas agora.       
+
+  Listed 1 directory, ran 5 shell commands (ctrl+o to expand)
+
+⏺ Perfil completo extraído. Os dados reais mudam várias premissas — escrevendo a
+  análise.
+
+⏺ Write(12-perfil-dados-csv.md)
+  ⎿  Wrote 303 lines to 12-perfil-dados-csv.md
+       1 # 12 — Perfil dos dados reais do rol
+       2 
+       3 Análise de `membros_rows.csv`: **2.622 registros**, 40 colunas. 
+         Substitui as suposições dos docs 08 e 09 por fatos medidos.
+       4 
+       6 
+       7 ## 1. Resumo executivo
+       8 
+       9 | O que se confirmou | O que se derrubou |
+      10 |---|---|
+     … +408 lines (ctrl+o to expand)
+
+⏺ Agora corrigindo os documentos que ficaram desatualizados.
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 17 lines, removed 1 line
+       1  # 09 — Mapeamento da importação do rol (CSV → modelo)
+       2  
+       3 -Origem: planilha/CSV informado na decisão **A4-a**, 40 colunas,
+         - ~1.669+ linhas.                                               
+       3 +> ## ⚠️ Documento parcialmente superado — leia o doc 12 primeiro
+         +                                                               
+       4 +>                                                              
+       5 +> Escrito **antes** do acesso ao arquivo. O `membros_rows.csv` 
+         +real foi analisado em `12-perfil-dados-csv.md`, que mede os dad
+         +os em vez de supô-los. Onde os dois divergirem, **vale o doc 12
+         +**.                                                            
+       6 +>                                                              
+       7 +> **Correções que o doc 12 impõe a este arquivo:**             
+       8 +> 1. São **2.622 linhas**, não ~1.669.                         
+       9 +> 2. Datas em **ISO 8601** — pendência **P10 resolvida**, sem a
+         +mbiguidade D/M.                                                
+      10 +> 3. `categoria` vem da coluna **`membro`**, não de `data_profi
+         +ssao_fe` (a regra do §3 abaixo erraria 50%).                   
+      11 +> 4. `oficial` **deve** ser importado como `Oficio` — traz tipo
+         + e disponibilidade (§2.2 abaixo dizia o contrário).            
+      12 +> 5. `id_igreja` e `profissao_informada` **descartados** por in
+         +strução do usuário.                                            
+      13 +> 6. `sexo` **não pode ser obrigatório** — falta em 860 registr
+         +os.                                                            
+      14 +> 7. `numero_ordem` é **`AAAA` + sequência**, não inteiro seque
+         +ncial.                                                         
+      15 +> 8. Pendências **P7, P8 e P10 resolvidas** pelo doc 12; o scri
+         +pt do §8 já foi executado.                                     
+      16 +>                                                              
+      17 +> O que continua válido aqui: a **estratégia de explosão** (§1)
+         +, o **processo de 3 passadas** (§5) e o **levantamento paralelo
+         +** (§6).                                                       
+      18  
+      19 +Origem: `membros_rows.csv`, 40 colunas, **2.622 linhas**.      
+      20 +                                                               
+      21  > **A natureza do problema**: o CSV é um **registro achatado — 
+          uma linha por membro**. O modelo é **normalizado por eventos**.
+           A importação não é um `COPY`; é uma **explosão de 1 linha em a
+          té 8 registros**. Este documento define essa explosão.
+      22  
+      23  ---
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 3 lines, removed 1 line
+      35                            └─→ VinculoFamiliar PAI/MAE   (se nom
+          e_pai / nome_mae preenchidos)
+      36  ```
+      37  
+      38 -**Importante**: `Oficio`, `Ordenacao` e `Mandato` **não vêm do 
+         -CSV**. A coluna `oficial` é só um flag booleano — não traz tipo
+         - de ofício, data de ordenação nem mandato. Esses dados terão de
+         - ser levantados à parte (ver §6), e são justamente os que a dec
+         -isão A2-a considerou insubstituíveis (Art. 25 §1º).            
+      38 +> **CORRIGIDO pelo doc 12 §3.2**: a coluna `oficial` **não** é 
+         +um flag booleano. Ela traz `Presbítero` (21), `Presbítero em di
+         +sponibilidade` (13) e `Diácono` (7) — ou seja, **tipo de ofício
+         + e a distinção de disponibilidade** (RN-OFI-11). Deve gerar `Of
+         +icio` na importação, somando um 9º ramo à explosão acima.      
+      39 +>                                                              
+      40 +> O que continua **não** vindo do CSV: `Ordenacao` (data), `Man
+         +dato` (instalação e término). Levantamento manual do §6 — agora
+         + **41 pessoas**, não 49.                                       
+      41  
+      42  ---
+      43  
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 4 lines, removed 10 lines
+      125  
+      126  ---
+      127  
+      128 -## 3. Derivação de `categoria` (comungante × não comungante)  
+      128 +## 3. Derivação de `categoria` — ❌ SEÇÃO ERRADA, SUBSTITUÍDA 
+      129  
+      130 -Não existe coluna para isso no CSV, mas é a segmentação centra
+          -l do relatório ao Presbitério (doc 08 §4).                    
+      130 +Eu havia proposto derivar a categoria de `data_profissao_fe`. 
+          +**Os dados reais derrubam a regra**: só 432 dos 1.291 comungan
+          +tes têm esse campo preenchido (33%). A regra produziria 641 co
+          +mungantes em vez de 1.291 — **erro de 50%**.                  
+      131  
+      132 -```                                                           
+      133 -se data_profissao_fe preenchida        → COMUNGANTE           
+      134 -senão se idade >= 18 anos              → ⚠️ INCONSISTENTE — rev
+          -isar manualmente                                              
+      135 -senão                                  → NAO_COMUNGANTE       
+      136 -```                                                           
+      132 +**Regra correta** (doc 12 §3.1): a categoria vem da coluna **`
+          +membro`** (`Comungante` 1.291 · `Não comungante` 155 · `Não me
+          +mbro` 622 · vazio 554). `data_profissao_fe` é apenas dado hist
+          +órico opcional.                                               
+      133  
+      138 -O caso do meio é real e provavelmente numeroso: **adulto batiz
+          -ado, sem profissão de fé registrada**. Pelo Art. 12 ele não é 
+          -comungante; mas pelo Art. 24 *c* também já deveria ter saído d
+          -o rol de não comungantes. Ver PENDÊNCIA P3 do doc 08 — em 2025
+          - a IPA não registrou nenhuma exclusão de não comungante, o que
+          - sugere que essas pessoas estão acumuladas no rol.            
+      134 +Para os 554 vazios, ver pendência **P11** do doc 12.          
+      135  
+      140 -**O importador deve emitir uma lista dessas pessoas para decis
+          -ão do Conselho**, não escolher sozinho.                       
+      141 -                                                              
+      136  ---
+      137  
+      138  ## 4. Formatos e normalização
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 6 lines, removed 7 lines
+      158  | **2. Simular** | Executa toda a transformação em memória e r
+           eporta o que **seria** criado, com todos os erros e avisos por
+            linha | `relatorio-simulacao.md` |
+      159  | **3. Executar** | Importa de verdade, em transação única, gu
+           ardando `idLegado` em tudo | `relatorio-importacao.md` |
+      160  
+      161 -**Conferência final obrigatória** — a importação só é aceita s
+          -e reproduzir o relatório de 2025 (doc 08 §4.3):               
+      161 +**Conferência final** — ❌ **critério anterior revogado**. Eu 
+          +propunha validar contra o relatório de 2025 (1.404 / 265 / 1.6
+          +69). O usuário determinou que **os números do relatório não ba
+          +tem com o rol e não devem servir de critério**, e os dados con
+          +firmam: o CSV tem 1.777 ativos contra 1.669 do relatório.     
+      162  
+      163 -```                                                           
+      164 -comungantes ativos      == 1.404   (662 M / 742 F)            
+      165 -não comungantes ativos  ==   265   (109 M / 156 F)            
+      166 -rol total               == 1.669   (771 M / 898 F)            
+      167 -```                                                           
+      163 +**Critério revisado** (doc 12 §6):                            
+      164  
+      169 -Se não bater, o problema está no mapeamento de `situacao` ou `
+          -membro` — não na aritmética. Este é o melhor teste de aceitaçã
+          -o que existe para a E1, e ele veio de graça com o PDF.        
+      165 +1. As **2.622 linhas** entram sem perda — nenhuma descartada e
+          +m silêncio.                                                   
+      166 +2. Nenhum valor de `membro`, `oficial`, `meio_admissao` ou `me
+          +io_demissao` fica sem mapeamento.                             
+      167 +3. As contagens por categoria e situação batem com **o CSV de 
+          +origem**, não com o relatório.                                
+      168 +4. As três filas de revisão são geradas nos totais esperados: 
+          +~521 sem categoria, ~860 sem sexo, ~34 nomes duplicados.      
+      169  
+      170  ### Classificação de erros
+      171  
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 4 lines, removed 2 lines
+      171  
+      172  | Nível | Exemplos | Comportamento |
+      173  |---|---|---|
+      174 -| **Bloqueante** | sem nome; sem sexo; `membro`=sim sem `data_
+          -admissao`; `numero_ordem` duplicado; `meio_admissao` desconhec
+          -ido | Aborta a importação |                                   
+      175 -| **Aviso** | sem data de nascimento; e-mail inválido; pai/mãe
+          - não casados por nome; tipo de batismo inferido | Importa e li
+          -sta para revisão |                                            
+      174 +| **Bloqueante** | sem nome; `numero_ordem` duplicado; valor d
+          +esconhecido em `membro`/`oficial`/`meio_admissao`/`meio_demiss
+          +ao` | Aborta a importação |                                   
+      175 +| **Aviso** | **sem sexo (860)**; **sem categoria (554)**; sem
+          + data de admissão (273 entre ativos); inativo sem data de demi
+          +ssão (447); nome duplicado (34); pai/mãe não casados por nome;
+          + tipo de batismo inferido | Importa e enfileira para revisão |
+      176  | **Silencioso** | campo opcional vazio | Nada |
+      177  
+      178 +> **Correção**: "sem sexo" e "sem data de admissão" eram bloqu
+          +eantes na v1 deste documento. Com 860 e 273 ocorrências reais,
+          + bloquear inviabilizaria a importação inteira. Viraram avisos 
+          +com fila de revisão.                                          
+      179 +                                                              
+      180  ---
+      181  
+      182  ## 6. O que o CSV **não** traz (levantamento paralelo)
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 8 lines, removed 20 lines
+      197  
+      198  ---
+      199  
+      200 -## 7. Pendências desta análise                                
+      200 +## 7. Pendências desta análise — **todas resolvidas**         
+      201  
+      202 -Todas resolvidas por um comando só, exceto P9 e P10 — ver §8. 
+      202 +| # | Pergunta | Resposta |                                   
+      203 +|---|---|---|                                                 
+      204 +| **P7** | Tipos das colunas ambíguas | `foto` = caminho relat
+          +ivo `picture/nome_uuid.jpeg`. `nome_pai`, `nome_mae`, `conjuge
+          +` = **texto puro**, zero UUIDs (doc 12 §4) |                  
+      205 +| **P8** | Domínios das colunas categóricas | Medidos e mapead
+          +os 1-a-1 no doc 12 §3. Nenhum valor órfão em `meio_admissao`; 
+          +2 a esclarecer em `meio_demissao` (P13) |                     
+      206 +| **P9** | O que é `id_igreja`? | **Descartado** — dados incon
+          +sistentes (`IP Anápolis` misturado com `3265`), por instrução 
+          +do usuário |                                                  
+      207 +| **P10** | Formato das datas | **ISO 8601** (`1979-01-23`). S
+          +em ambiguidade. O risco de corrupção silenciosa não existe |  
+      208  
+      204 -### P7 — Tipos das colunas ambíguas                           
+      205 -`foto` é caminho, URL ou base64? `nome_pai`, `nome_mae`, `conj
+          -uge` são texto ou id de outra linha?                          
+      206 -**Resposta:**                                                 
+      209 +Pendências novas, abertas pelos dados reais: **P11 a P18**, no
+          + doc 12 §7.                                                   
+      210  
+      208 -### P8 — Domínios das colunas categóricas                     
+      209 -Preciso dos **valores distintos** de: `situacao`, `meio_admiss
+          -ao`, `meio_demissao`, `membro`, `oficial`, `estado_civil`, e a
+          - diferença entre `profissao` e `profissao_informada`.         
+      210 -> Sem isso, o mapeamento de formas de admissão/demissão é chut
+          -e — e é ele que faz o relatório fechar em 1.404.              
+      211 -**Resposta:**                                                 
+      212 -                                                              
+      213 -### P9 — O que é `id_igreja`?                                 
+      214 -**Hipótese**: id da congregação/ponto de pregação (a IPA tem 2
+          - + 1 = 3). **Alternativa**: resquício de um sistema multi-igre
+          -ja, com o mesmo valor em todas as linhas.                     
+      215 -> Se for congregação, é a única fonte de lotação existente e p
+          -recisa ser mapeada antes da E1.                               
+      216 -**Resposta:**                                                 
+      217 -                                                              
+      218 -### P10 — Formato das datas                                   
+      219 -`M/D/AAAA` (como no PDF) ou `D/M/AAAA`?                       
+      220 -> Confirme olhando qualquer linha com dia > 12. Errar aqui cor
+          -rompe tudo em silêncio.                                       
+      221 -**Resposta:**                                                 
+      222 -                                                              
+      211  ---
+      212  
+      213  ## 8. Comando para responder P7, P8 e P10 de uma vez
+
+⏺ Update(09-mapeamento-importacao-csv.md)
+  ⎿  Added 2 lines, removed 2 lines
+      210  
+      211  ---
+      212  
+      213 -## 8. Comando para responder P7, P8 e P10 de uma vez          
+      213 +## 8. Script de perfilagem — ✅ já executado                  
+      214  
+      215 -Rode no terminal, com o CSV à mão, e me mande a saída:        
+      215 +Resultados no doc 12. Mantido aqui para reexecução quando a pl
+          +anilha for atualizada.                                        
+      216  
+      217  ```bash
+      218  # ajuste o caminho do arquivo
+
+⏺ Update(08-analise-relatorio-estatistico.md)
+  ⎿  Added 9 lines, removed 1 line
+       3  Fonte: `relatorio-igreja.pdf` — *Informações Cadastrais e Estat
+          ísticas de Comunidade Presbiteriana*, exercício **2025**, preen
+          chido pela IPA.
+       4  Sínodo de Anápolis (SAN) · Presbitério de Anápolis (PANA) · for
+          mulário `CSM-IPB - 2021-v.8.0`.
+       5  
+       6 -> **Este documento é o contrato de saída do sistema.** Toda a m
+         -odelagem de eventos existe para que este formulário se preencha
+         - sozinho (RN-REL-04). Onde o modelo não consegue derivar um cam
+         -po daqui, o modelo está incompleto — e três lacunas reais foram
+         - encontradas (§6).                                             
+       6 +> **Este documento é o contrato de saída do sistema**: o formul
+         +ário que a igreja é obrigada a entregar ao Presbitério (RN-REL-
+         +04) define quais eventos o modelo precisa registrar.           
+       7 +>                                                              
+       8 +> ### ⚠️ Ressalvas do usuário — três partes deste documento NÃO 
+         +valem                                                          
+       9 +>                                                              
+      10 +> 1. **Os números de membros do relatório não batem com o rol e
+         + não servem de critério de validação.** Todo o §4.3 e o "teste 
+         +de aceitação" derivado dele estão **revogados** — o critério re
+         +visado está no doc 12 §6. O rol do sistema passa a ser a fonte 
+         +da verdade; o relatório do próximo exercício sairá dele, e não 
+         +o contrário.                                                   
+      11 +> 2. **As informações de sociedades internas e departamentos (§
+         +3.3) não devem ser consideradas.** Hoje a IPA tem vários minist
+         +érios designados **sem formalidade alguma além do registro em a
+         +ta dos respectivos líderes**. Não há sociedade com estatuto. → 
+         +`OrganizacaoInterna` **volta a 🟡**; a modelagem correta desses
+         + ministérios é `Designacao` (RN-CON-41), que já existe no model
+         +o. A "contradição com a decisão B2" que eu apontei era minha, n
+         +ão sua: eu tratei o formulário como fato e sua resposta como er
+         +ro.                                                            
+      12 +> 3. **As informações de Escola Bíblica (§3.2 e §6.1) não entra
+         +m agora.** `EscolaDominical`, `TurmaEBD` e `AtuacaoEBD` saem do
+         + MVP → ⚪ backlog.                                             
+      13 +>                                                              
+      14 +> O que **continua válido**: a decodificação da estrutura do fo
+         +rmulário (quais campos existem), o mapeamento das formas de adm
+         +issão/demissão para as linhas do relatório (§4.1 e §4.2), e as 
+         +duas correções de modelo que ele revelou — `ORDENACAO_AO_MINIST
+         +ERIO` e `MOVIMENTO_PARA_ROL_SEPARADO` como formas de demissão. 
+      15  
+      16  ---
+      17  
+
+⏺ Update(08-analise-relatorio-estatistico.md)
+  ⎿  Added 12 lines, removed 10 lines
+      270  
+      271  ## 8. Efeito consolidado sobre a prioridade dos módulos
+      272  
+      273 -| Módulo | Antes | Agora | Motivo |                           
+      274 -|---|:-:|:-:|---|                                             
+      275 -| M7 Congregações | 🟡 | **🟢** | Decisão A3-b: 2 congregações
+          - + 1 ponto de pregação existem hoje |                         
+      276 -| M7 Organizações internas | 🟡 | **🟢** | Seção II do formulá
+          -rio não fecha sem elas |                                      
+      277 -| Escola Dominical | — | **🟢** | Seção II do formulário |    
+      278 -| `VinculoMinisterial` | — | 🟡 | Seção II (licenciados/candid
+          -atos) |                                                       
+      279 -| `RelatorioFinanceiroAnual` | ⚪ | **🟢** | Seção IV do formu
+          -lário |                                                       
+      280 -| Regime excepcional Art. 76 §1º | 🟢 | ⚪ | 21 presbíteros — 
+          -nunca se aplica |                                             
+      281 -| M9 Finanças (dízimos, ofertas) | ⚪ | ⚪ | Mantido fora, con
+          -forme A5 |                                                    
+      273 +Tabela revisada após as ressalvas do usuário (§ topo do docume
+          +nto):                                                         
+      274  
+      283 -O modelo atualizado está no doc `04-modelo-de-entidades.md` (v
+          -2).                                                           
+      275 +| Módulo | v1 | v2 | **v3 (vigente)** | Motivo |              
+      276 +|---|:-:|:-:|:-:|---|                                         
+      277 +| M7 Congregações | 🟡 | 🟢 | **🟢** | Decisão A3-b: 2 congreg
+          +ações + 1 ponto de pregação existem hoje |                    
+      278 +| Organizações internas | 🟡 | 🟢 | **🟡** | Ressalva 2: só mi
+          +nistérios informais → modelar como `Designacao` |             
+      279 +| Escola Dominical | — | 🟢 | **⚪** | Ressalva 3: fora por or
+          +a |                                                           
+      280 +| `VinculoMinisterial` | — | 🟡 | **🟡** | Licenciados/candida
+          +tos — atestado é ato do Conselho (Art. 115 *b*) |             
+      281 +| `RelatorioFinanceiroAnual` | ⚪ | 🟢 | **🟡** | Obrigação re
+          +al do formulário, mas não bloqueia a E1 |                     
+      282 +| Regime excepcional Art. 76 §1º | 🟢 | ⚪ | **⚪** | 21 presb
+          +íteros — nunca se aplica |                                    
+      283 +| M9 Finanças (dízimos, ofertas) | ⚪ | ⚪ | **⚪** | Mantido 
+          +fora, conforme A5 |                                           
+      284 +                                                              
+      285 +O modelo vigente está no doc `04-modelo-de-entidades.md` (v3).
+
+⏺ Agora o modelo (v3) e o schema.
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 20 lines, removed 1 line
+      1 -# 04 — Modelo de entidades (v2)                                 
+      1 +# 04 — Modelo de entidades (v3)                                 
+      2  
+      3  Modelo de domínio da IPA derivado da CI/IPB. Cada entidade traz 
+         a(s) regra(s) `RN-XX-00` do doc 03 que a justificam.
+      4  
+     ...
+       6  
+       7  ---
+       8  
+       9 +## Changelog v2 → v3                                           
+      10 +                                                               
+      11 +Ajustes decorrentes das ressalvas do usuário e do perfil dos da
+         +dos reais (doc 12).                                            
+      12 +                                                               
+      13 +| # | Mudança | Origem |                                       
+      14 +|---|---|---|                                                  
+      15 +| 1 | `Membro.categoria` vem da coluna **`membro`** do CSV, **n
+         +unca** derivada de `data_profissao_fe` | Doc 12 §3.1 — só 33% d
+         +os comungantes têm o campo; a derivação erraria 50% |          
+      16 +| 2 | **`Pessoa.sexo` passa a opcional** | Doc 12 §5.2 — falta 
+         +em 860 registros; obrigatoriedade inviabiliza a importação |   
+      17 +| 3 | **`Membro.numeroRol` passa a texto**, formato `AAAA` + se
+         +quência | Doc 12 §4 — o padrão em uso é `20181567`, não inteiro
+         + sequencial (revisa B3-a) |                                    
+      18 +| 4 | 🆕 `Membro.pendenciaRevisao` + `Pessoa.dadosInferidos` | 
+         +Doc 12 §5 — três filas de revisão (521 sem categoria, 860 sem s
+         +exo, 34 duplicatas) |                                          
+      19 +| 5 | `Oficio` passa a ser **importável do CSV** (coluna `ofici
+         +al`, com disponibilidade) | Doc 12 §3.2 |                      
+      20 +| 6 | `OrganizacaoInterna` volta a **🟡**; ministérios informai
+         +s viram `Designacao` | Ressalva do usuário — não há sociedade c
+         +om estatuto na IPA |                                           
+      21 +| 7 | `EscolaDominical`, `TurmaEBD`, `AtuacaoEBD` → **⚪ backlo
+         +g** | Ressalva do usuário |                                    
+      22 +| 8 | `RelatorioFinanceiroAnual` → **🟡** | Não bloqueia a E1 |
+      23 +| 9 | Estatística **deixa de ser validada** contra o relatório 
+         +2025 | Ressalva do usuário — os números não batem com o rol |  
+      24 +| 10 | 🆕 `Membro.categoria` admite `NAO_DEFINIDO`; `Pessoa` po
+         +de existir **sem** `Membro` (622 "Não membro") | Doc 12 §3.1 | 
+      25 +                                                               
+      26 +---                                                            
+      27 +                                                               
+      28  ## Changelog v1 → v2
+      29  
+      30  Ajustes decorrentes das decisões do doc 07, do relatório oficia
+          l (doc 08) e do CSV de origem (doc 09).
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 2 lines, removed 1 line
+      132  |---|---|---|
+      133  | `nomeCompleto` | texto | |
+      134  | `dataNascimento` | data | dirige RN-MEM-04 (18 anos), RN-MEM
+           -21 *c* |
+      135 -| `sexo` | enum M/F | **obrigatório**: RN-OFI-03 (elegibilidad
+          -e) **e** segmentação de toda a estatística (doc 08 §4) |      
+      135 +| `sexo` | enum M/F, **opcional** | Necessário para RN-OFI-03 
+          +e para a estatística, mas **falta em 860 registros reais** — o
+          +brigatoriedade inviabilizaria a importação. Vira pendência de 
+          +revisão, não erro |                                           
+      136 +| `sexoInferido` | booleano | quando deduzido do prenome (doc 
+          +12 §5.2) |                                                    
+      137  | `naturalidade` | texto | do CSV de origem |
+      138  | `estadoCivil` | enum | |
+      139  | `civilmenteCapaz` | booleano | RN-MEM-04, RN-ASM-04 |
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 5 lines, removed 3 lines
+      172  
+      173  | Campo | Tipo | Obs |
+      174  |---|---|---|
+      175 -| `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registr
+          -o de membro nesta igreja |                                    
+      176 -| `numeroRol` | inteiro | sequencial **permanente, nunca reuti
+          -lizado** (decisão B3-a); no CSV é `numero_ordem` |            
+      177 -| `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` — RN-M
+          -EM-02 |                                                       
+      175 +| `pessoaId` | ref | 1:1 — uma pessoa tem no máximo um registr
+          +o de membro. **Nem toda `Pessoa` tem `Membro`**: 622 registros
+          + do CSV são "Não membro" |                                    
+      176 +| `numeroRol` | **texto** | Formato real em uso: `AAAA` + sequ
+          +ência (`20181567`). Permanente, nunca reutilizado. Preenchido 
+          +em 63% do rol — ver P14 |                                     
+      177 +| `categoria` | enum | `COMUNGANTE` \| `NAO_COMUNGANTE` \| **`
+          +NAO_DEFINIDO`** — RN-MEM-02. **Vem da coluna `membro`, nunca d
+          +e `data_profissao_fe`** (doc 12 §3.1) |                       
+      178 +| `categoriaInferida` | booleano | quando deduzida da forma de
+          + admissão na importação (P11) |                               
+      179 +| `pendenciaRevisao` | booleano | fila de trabalho: mapeia `si
+          +tuacao = 'Revisar'` (99) e as inconsistências detectadas |    
+      180  | `situacao` | enum **derivado** | `ATIVO` \| `EM_DISCIPLINA` 
+           \| `ROL_SEPARADO` \| `TRANSFERENCIA_EM_CURSO` \| `DEMITIDO` |
+      181  | `congregacaoId` | ref, opcional | lotação — RN-CNG-04 |
+      182  | `dataBatismo` | data | RN-MEM-01 |
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 1 line
+      190  ⚠️ **`situacao = ROL_SEPARADO` não conta como membro ativo** n
+           a estatística. O formulário oficial lista "Rol Separado" entre
+            as **demissões** (doc 08 §4.1) — entrar no rol separado é uma
+            saída da contagem de comungantes, não um estado paralelo.
+      191  
+      192  **`emPlenaComunhao` = `categoria == COMUNGANTE` E `situacao ==
+            ATIVO` E não existe `MedidaDisciplinar` vigente que suspenda 
+           privilégios.**
+      193 +*(`NAO_DEFINIDO` nunca está em plena comunhão — os 521 registr
+          +os sem categoria ficam fora de listas de voto e elegibilidade 
+          +até serem classificados.)*                                    
+      194  Nunca é campo editável. É a checagem mais usada do sistema int
+           eiro (voto, elegibilidade, Ceia, apresentar filho ao batismo, 
+           compor assembleia).
+      195  
+      196  **Campos derivados úteis para elegibilidade** (calcular, não a
+           rmazenar):
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 6 lines, removed 2 lines
+      483  *Não tem rol próprio (RN-CNG-04): membros são da IPA, com `Mem
+           bro.congregacaoId` apontando para cá.*
+      484  *A IPA tem hoje **2 congregações e 1 ponto de pregação** — con
+           tados separadamente na Seção II do formulário. A coluna `id_ig
+           reja` do CSV possivelmente aponta para cá (doc 09, P9).*
+      485  
+      486 -### 🟢 `OrganizacaoInterna`                                   
+      486 +### 🟡 `OrganizacaoInterna`                                   
+      487  > RN-SOC-01 a RN-SOC-04, RN-CON-41 · **substitui `SociedadeInt
+           erna` da v1** (doc 08 §3.3)
+      488  
+      489 -**Dois eixos independentes.** É o que reconcilia a decisão B2 
+          -("nenhuma sociedade com estatuto") com o relatório 2025 ("4 de
+          -partamentos, 645 membros").                                   
+      489 +> **v3 — rebaixada de 🟢 para 🟡.** O usuário determinou que o
+          +s dados de sociedades e departamentos do relatório não devem s
+          +er considerados: hoje a IPA tem **vários ministérios designado
+          +s, sem formalidade além do registro em ata dos líderes**, e ne
+          +nhuma sociedade com estatuto.                                 
+      490 +>                                                             
+      491 +> **Modelagem correta desses ministérios hoje**: `Designacao` 
+          +(RN-CON-41) apontando para a pessoa do líder, com `dataInicio`
+          +/`dataFim` e a `Resolucao` que o designou. É o que a decisão B
+          +2 já dizia. A entidade abaixo fica pronta para quando surgir a
+          + primeira sociedade com estatuto.                             
+      492  
+      493 +**Dois eixos independentes**, quando ela for necessária:      
+      494 +                                                              
+      495  | Campo | Tipo | Obs |
+      496  |---|---|---|
+      497  | `nome` | texto | |
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 2 lines, removed 2 lines
+      514  
+      515  `organizacaoInternaId` (ou `juntaDiaconalId`), `exercicio`, `t
+           ipoLivro` (`ATAS` \| `TESOURARIA` \| `RELATORIO`), `dataExame`
+           , `observacoes`, `resolucaoId`.
+      516  
+      517 -### 🟢 `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`          
+      518 -> 🆕 v2 — Seção II do formulário (doc 08 §6.1). A IPA declara 
+          -**3 escolas, 22 professores, 450 alunos**                     
+      517 +### ⚪ `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`          
+      518 +> **v3 — movida para backlog** por instrução do usuário: infor
+          +mações de Escola Bíblica não entram agora. Especificação prese
+          +rvada para quando entrar.                                     
+      519  
+      520  - `EscolaDominical`: `nome`, `congregacaoId` (opcional), `stat
+           us`.
+      521  - `TurmaEBD`: `escolaDominicalId`, `nome`, `faixaEtaria`, `ano
+           Letivo`.
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 4 lines, removed 2 lines
+      562  
+      563  **Deve ser 100% derivada dos eventos.** Se alguém precisar dig
+           itar um número aqui, o modelo de eventos está incompleto.
+      564  
+      565 -**Validação de fechamento obrigatória** (doc 08 §4.3) — o rela
+          -tório não pode ser emitido se falhar, em cada coluna de sexo s
+          -eparadamente:                                                 
+      565 +**Validação de fechamento interna** — o sistema confere a próp
+          +ria aritmética, em cada coluna de sexo:                       
+      566  
+      567  ```
+      568  ano_atual = ano_anterior + Σ admissões − Σ demissões
+      569  rol_atual = comungantes + não_comungantes
+      570  ```
+      571  
+      572 -### 🟢 `RelatorioFinanceiroAnual`                             
+      572 +⚠️ **v3**: essa conferência valida o sistema **contra si mesmo
+          +**, não contra o relatório de 2025. Os números históricos do f
+          +ormulário não batem com o rol (doc 12 §6) e **não são critério
+          + de aceite**. O primeiro exercício fechado pelo sistema passa 
+          +a ser a nova linha de base.                                   
+      573 +                                                              
+      574 +### 🟡 `RelatorioFinanceiroAnual`                             
+      575  > 🆕 v2 — Seção IV do formulário (doc 08 §5). **Não é módulo d
+           e finanças**: são ~40 totais digitados uma vez por ano, preser
+           vando a decisão A5-a
+      576  
+      577  `exercicio`, `quadro` (`REALIZADO_ANO_ANTERIOR` \| `PREVISAO_P
+           ROXIMO_EXERCICIO`), `saldoAnoAnterior`, e uma linha por rubric
+           a:
+
+⏺ Update(04-modelo-de-entidades.md)
+  ⎿  Added 12 lines, removed 5 lines
+      606  **Conciliar**: `Reuniao` · `Convocacao` · `Presenca` · `Resolu
+           cao` · `Ata`
+      607  **Assembleia**: `Assembleia` · `Eleicao` · `AptoAVotar` · `Can
+           didatura`
+      608  **Atos**: `AtoPastoral` · `ParticipanteAtoPastoral`
+      609 -**Estrutura** *(novo na v2)*: `Congregacao` · `OrganizacaoInte
+          -rna` · `EscolaDominical` + `TurmaEBD` + `AtuacaoEBD`          
+      610 -**Saída**: `RelatorioAnual` · `EstatisticaAnual` · `RelatorioF
+          -inanceiroAnual` *(novo na v2)*                                
+      609 +**Estrutura**: `Congregacao` · `Designacao` (ministérios infor
+          +mais)                                                         
+      610 +**Saída**: `RelatorioAnual` · `EstatisticaAnual`              
+      611  
+      612 -Com essas, o Conselho cumpre integralmente o Art. 83, alíneas 
+          -*b*, *d*, *j*, *l*, *m*, **e emite o formulário CSM-IPB comple
+          -to** — que é a obrigação constitucional mínima de registro da 
+          -igreja local (Art. 68).                                       
+      612 +Com essas, o Conselho cumpre integralmente o Art. 83, alíneas 
+          +*b*, *d*, *j*, *l*, *m* — a obrigação constitucional mínima de
+          + registro da igreja local.                                    
+      613  
+      614 -`CartaDeTransferencia` permanece 🟡: em 2025 houve apenas 2 tr
+          -ansferências expedidas e 17 recebidas, contra 121 admissões po
+          -r jurisdição. É baixo volume e não bloqueia o relatório.      
+      614 +**Fora do MVP na v3**: `OrganizacaoInterna` e `RelatorioFinanc
+          +eiroAnual` (🟡) · `EscolaDominical` e derivadas (⚪) · `CartaD
+          +eTransferencia` (🟡 — baixo volume: 173 transferências em todo
+          + o histórico, contra 831 admissões por jurisdição).           
+      615  
+      616 -**Teste de aceitação do MVP**: importar o CSV e reproduzir exa
+          -tamente o relatório de 2025 — 1.404 comungantes (662 M / 742 F
+          -), 265 não comungantes (109 M / 156 F), rol de 1.669. Ver doc 
+          -09 §5.                                                        
+      616 +**Teste de aceitação do MVP** (revisado na v3 — o relatório 20
+          +25 **não** é critério):                                       
+      617 +                                                              
+      618 +1. As 2.622 linhas do CSV entram sem perda.                   
+      619 +2. Nenhum valor de `membro`, `oficial`, `meio_admissao` ou `me
+          +io_demissao` fica sem mapeamento.                             
+      620 +3. Contagens por categoria e situação batem com o CSV de orige
+          +m.                                                            
+      621 +4. As filas de revisão saem nos totais esperados: ~521 sem cat
+          +egoria, ~860 sem sexo, ~34 nomes duplicados.                  
+      622 +                                                              
+      623 +Ver doc 12 §6.                                                
+
+⏺ Agora o schema, que tinha constraints incompatíveis com os dados reais.
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 1 line, removed 1 line
+      16  
+      17  ```sql
+      18  CREATE TYPE sexo                AS ENUM ('M','F');
+      19 -CREATE TYPE categoria_membro    AS ENUM ('COMUNGANTE','NAO_COMU
+         -NGANTE');                                                      
+      19 +CREATE TYPE categoria_membro    AS ENUM ('COMUNGANTE','NAO_COMU
+         +NGANTE','NAO_DEFINIDO');                                       
+      20  
+      21  CREATE TYPE situacao_membro     AS ENUM (
+      22    'ATIVO','EM_DISCIPLINA','ROL_SEPARADO','TRANSFERENCIA_EM_CURS
+          O','DEMITIDO');
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 2 lines, removed 1 line
+      115    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid
+           (),
+      116    nome_completo       text NOT NULL,
+      117    data_nascimento     date,
+      118 -  sexo                sexo NOT NULL,          -- obrigatorio: 
+          -segmenta toda a estatistica                                   
+      118 +  sexo                sexo,                   -- NULLABLE: fal
+          +ta em 860 registros reais (doc 12 §5.2)                       
+      119 +  sexo_inferido       boolean NOT NULL DEFAULT false,         
+      120    naturalidade        text,
+      121    estado_civil        text,
+      122    civilmente_capaz    boolean NOT NULL DEFAULT true,
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 7 lines, removed 10 lines
+      172  CREATE TABLE membro (
+      173    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid
+           (),
+      174    pessoa_id           uuid NOT NULL UNIQUE REFERENCES pessoa(i
+           d),
+      175 -  numero_rol          integer UNIQUE,        -- permanente, nu
+          -nca reutilizado (B3-a)                                        
+      176 -  categoria           categoria_membro NOT NULL,              
+      175 +  numero_rol          text UNIQUE,           -- 'AAAA'+sequenc
+          +ia (ex.: '20181567') — doc 12 §4                              
+      176 +  categoria           categoria_membro NOT NULL DEFAULT 'NAO_D
+          +EFINIDO',                                                     
+      177 +  categoria_inferida  boolean NOT NULL DEFAULT false,         
+      178    situacao            situacao_membro NOT NULL DEFAULT 'ATIVO'
+           ,
+      179 +  pendencia_revisao   boolean NOT NULL DEFAULT false,         
+      180    congregacao_id      uuid REFERENCES congregacao(id),
+      181    data_batismo        date,
+      182    data_profissao_fe   date,
+     ...
+      185    ata_admissao_legado text,
+      186    id_legado           text UNIQUE,
+      187    criado_em           timestamptz NOT NULL DEFAULT now(),
+      186 -  atualizado_em       timestamptz NOT NULL DEFAULT now(),     
+      187 -                                                              
+      188 -  -- RN-MEM-02: comungante e quem fez profissao de fe         
+      189 -  CONSTRAINT comungante_tem_profissao                         
+      190 -    CHECK (categoria <> 'COMUNGANTE' OR data_profissao_fe IS N
+          -OT NULL),                                                     
+      191 -  -- membro demitido tem data de demissao, e vice-versa       
+      192 -  CONSTRAINT demissao_coerente                                
+      193 -    CHECK ((situacao = 'DEMITIDO') = (data_demissao IS NOT NUL
+          -L))                                                           
+      188 +  atualizado_em       timestamptz NOT NULL DEFAULT now()      
+      189  );
+      190  
+      191 +CREATE INDEX membro_pendencia ON membro (pendencia_revisao) WH
+          +ERE pendencia_revisao;                                        
+      192 +                                                              
+      193  CREATE INDEX membro_situacao   ON membro (situacao, categoria)
+           ;
+      194  CREATE INDEX membro_congregacao ON membro (congregacao_id);
+      195  ```
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Error editing file
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 17 lines
+      194  CREATE INDEX membro_congregacao ON membro (congregacao_id);
+      195  ```
+      196  
+      197 +> ### ⚠️ Duas `CHECK` removidas na v3 — os dados reais as viola
+          +m                                                             
+      198 +>                                                             
+      199 +> ```sql                                                      
+      200 +> -- REMOVIDA: 859 dos 1.291 comungantes nao tem data_profissa
+          +o_fe (doc 12 §3.1)                                            
+      201 +> CONSTRAINT comungante_tem_profissao                         
+      202 +>   CHECK (categoria <> 'COMUNGANTE' OR data_profissao_fe IS N
+          +OT NULL)                                                      
+      203 +>                                                             
+      204 +> -- REMOVIDA: 447 inativos sem data_demissao e 2 ativos com d
+          +ata (doc 12 §3.3)                                             
+      205 +> CONSTRAINT demissao_coerente                                
+      206 +>   CHECK ((situacao = 'DEMITIDO') = (data_demissao IS NOT NUL
+          +L))                                                           
+      207 +> ```                                                         
+      208 +>                                                             
+      209 +> As duas expressam regras corretas da Constituição, mas **com
+          +o `CHECK` impediriam a importação de 1.300+ registros legítimo
+          +s**. Viram **validações de aplicação com fila de revisão** (`p
+          +endencia_revisao`), não invariantes de banco. Reintroduzi-las 
+          +depois da limpeza é uma migration de uma linha — e aí sim o ba
+          +nco protege o que já está limpo.                              
+      210 +                                                              
+      211 +```sql                                                        
+      212 +```                                                           
+      213 +                                                              
+      214  ### `admissao` e `demissao` (eventos)
+      215  
+      216  ```sql
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 1 line, removed 1 line
+      256  CREATE VIEW membro_em_plena_comunhao AS
+      257  SELECT m.id AS membro_id
+      258  FROM membro m
+      259 -WHERE m.categoria = 'COMUNGANTE'                              
+      259 +WHERE m.categoria = 'COMUNGANTE'      -- NAO_DEFINIDO nunca en
+          +tra                                                           
+      260    AND m.situacao  = 'ATIVO'
+      261    AND NOT EXISTS (
+      262          SELECT 1 FROM medida_disciplinar md
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 4 lines, removed 1 line
+      713  | Ausente | Motivo |
+      714  |---|---|
+      715  | `usuario`, `papel`, `permissao` | Decisão do usuário: sem au
+           th na v1 (doc 07, C1) |
+      716 -| `carta_de_transferencia` | 🟡 — baixo volume (2 expedidas em
+          - 2025); entra na E5 |                                         
+      716 +| `escola_dominical`, `turma_ebd`, `atuacao_ebd` | ⚪ — instru
+          +ção do usuário: Escola Bíblica fica para depois. **Remover das
+          + migrations 010** |                                           
+      717 +| `organizacao_interna` | 🟡 — não há sociedade com estatuto n
+          +a IPA; ministérios informais usam `designacao` |              
+      718 +| `relatorio_financeiro_anual` | 🟡 — não bloqueia a E1 |     
+      719 +| `carta_de_transferencia` | 🟡 — 173 transferências em todo o
+          + histórico, contra 831 admissões por jurisdição; entra na E5 |
+      720  | `processo_disciplinar`, `medida_disciplinar` | ⚪ — depende 
+           do Código de Disciplina (C2). A view `membro_em_plena_comunhao
+           ` já as prevê |
+      721  | `bem`, `orcamento`, `contribuicao` | ⚪ — decisão A5-a. O fo
+           rmulário é atendido por `relatorio_financeiro_anual` |
+      722  | `presbiterio`, `sinodo` | Fora de escopo: são texto em `igre
+           ja`, não entidades |
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 3 lines, removed 2 lines
+      699  007  FKs adiadas (resolucao_id nas tabelas de evento)
+      700  008  eleicao, apto_a_votar, candidatura
+      701  009  ato_pastoral, participante_ato_pastoral
+      702 -010  organizacao_interna, designacao, escola_dominical, turma_
+          -ebd, atuacao_ebd                                              
+      703 -011  relatorio_anual, relatorio_financeiro_anual              
+      702 +010  designacao                        (organizacao_interna e 
+          +EBD ficam para depois)                                        
+      703 +011  relatorio_anual                   (relatorio_financeiro_a
+          +nual fica para depois)                                        
+      704  012  view membro_em_plena_comunhao
+      705  ```
+      706  
+      707  `001–004` são suficientes para a E1 e para rodar a importação 
+           do CSV.
+      708 +`005` entra logo em seguida: a coluna `oficial` do CSV já traz
+          + 41 ofícios prontos para importar (doc 12 §3.2).              
+      709  
+      710  ---
+      711  
+
+⏺ Por fim, a spec do M1 e o índice.
+
+⏺ Update(11-spec-m1-rol-de-membros.md)
+  ⎿  Error editing file
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(11-spec-m1-rol-de-membros.md)
+  ⎿  Added 6 lines, removed 4 lines
+      14  
+      15  | Fato | Origem | Consequência |
+      16  |---|---|---|
+      17 -| 1.669 membros (1.404 comungantes + 265 não comungantes) | Rel
+         -atório 2025 | Listagem paginada e busca são requisito, não melh
+         -oria |                                                         
+      18 -| +188 comungantes de saldo em 2025 | Relatório 2025 | ~200 adm
+         -issões/ano: o assistente de admissão é a tela mais usada |     
+      19 -| **121 das 197 admissões foram por jurisdição** | Relatório 20
+         -25 | Jurisdição é o caminho principal, não a exceção |         
+      17 +| **2.622 registros**; 1.777 ativos (1.125 comungantes · 131 nã
+         +o comungantes · **521 sem categoria**) | CSV real (doc 12) | Li
+         +stagem paginada e busca são requisito, não melhoria |          
+      18 +| **831 admissões históricas por jurisdição a pedido**, contra 
+         +386 por transferência | CSV | Jurisdição é o caminho principal,
+         + não a exceção |                                               
+      19 +| **860 sem sexo · 554 sem categoria · 447 inativos sem data de
+         + demissão · 34 nomes duplicados** | CSV | **A fila de revisão é
+         + funcionalidade de primeira classe**, não relatório de erro |  
+      20 +| `oficial` traz 21 presbíteros, 13 em disponibilidade, 7 diáco
+         +nos | CSV | 41 ofícios já importáveis na E1 |                  
+      21  | 2 congregações + 1 ponto de pregação | Decisão A3-b | Lotação
+           obrigatória desde a E1 |
+      22  | Operadores: secretária, secretário do Conselho, pastores | De
+          cisão B7 | Duas UX no mesmo módulo — ver §5.1 |
+      22 -| Origem: CSV de 40 colunas | Decisão A4-a | Importador é parte
+         - da E1, não pré-requisito externo |                            
+      23  
+      24 +⚠️ **Os números do relatório estatístico 2025 não servem de val
+         +idação** (instrução do usuário; divergência real de 108 pessoas
+         +). O rol do sistema passa a ser a fonte da verdade.            
+      25 +                                                               
+      26  ---
+      27  
+      28  ## Entidades envolvidas
+
+⏺ Update(11-spec-m1-rol-de-membros.md)
+  ⎿  Added 20 lines, removed 2 lines
+      137  
+      138  ### UC-M1-14 — Importar o CSV inicial ⭐
+      139  **Ator**: você, uma vez · **Gatilho**: implantação
+      140 -Três passadas — perfilar, simular, executar — conforme doc 09 
+          -§5.                                                           
+      141 -**Critério de aceite**: reproduzir exatamente 1.404 / 265 / 1.
+          -669, com a segmentação por sexo (662-742 / 109-156 / 771-898).
+      140 +Três passadas — perfilar, simular, executar — conforme doc 09 
+          +§5. Mapeamentos definitivos no doc 12 §3.                     
+      141 +**Critério de aceite** (revisado): 2.622 linhas sem perda · ne
+          +nhum valor categórico sem mapeamento · contagens iguais às do 
+          +CSV de origem · filas de revisão nos totais esperados.        
+      142  
+      143 +### UC-M1-15 — Fila de revisão de dados ⭐ *(novo)*           
+      144 +**Ator**: secretária · **Gatilho**: pós-importação e uso contí
+          +nuo                                                           
+      145 +                                                              
+      146 +Consequência direta do doc 12 §5: o rol chega com lacunas conh
+          +ecidas, e resolvê-las **é trabalho de meses**. Precisa ser uma
+          + tela, não um relatório.                                      
+      147 +                                                              
+      148 +| Fila | Volume | Ação |                                      
+      149 +|---|---:|---|                                                
+      150 +| Sem categoria (`NAO_DEFINIDO`) | ~521 | Classificar comungan
+          +te / não comungante / não membro. Mostrar forma de admissão ao
+          + lado — ela sugere a resposta em 89% dos casos |              
+      151 +| Sem sexo | ~860 | Preencher; aceitar sugestão por prenome (m
+          +arcada como inferida) |                                       
+      152 +| Nomes duplicados | ~34 | Comparar lado a lado e marcar "mesm
+          +a pessoa" ou "homônimos" — **nunca mesclar automaticamente** |
+      153 +| `situacao = Revisar` no legado | 99 | Triagem livre |       
+      154 +| Inativos sem data de demissão | 447 | Informar data e forma,
+          + ou reativar |                                                
+      155 +| Ativos sem `numero_ordem` | 277 | Atribuir número no padrão 
+          +`AAAA`+sequência |                                            
+      156 +                                                              
+      157 +**Requisitos**: edição em lote, filtro por fila, contador de p
+          +rogresso visível, e **capacidade de adiar** um item sem perdê-
+          +lo. Quem opera isso vai voltar dezenas de vezes.              
+      158 +                                                              
+      159 +**Regra**: item em revisão **não** bloqueia o uso do registro.
+          + O membro aparece no rol normalmente, com um marcador discreto
+          +.                                                             
+      160 +                                                              
+      161  ---
+      162  
+      163  ## Regras aplicáveis (checklist de implementação)
+
+⏺ Update(11-spec-m1-rol-de-membros.md)  ⎿  Added 2 lines, removed 2 lines
+      246  
+      247  ## Critérios de pronto (E1)
+      248  
+      249 -- [ ] Migrations `001–004` aplicadas                          
+      250 -- [ ] CRUD de pessoa com `sexo` obrigatório                   
+      249 +- [ ] Migrations `001–004` aplicadas (`005` em seguida, para o
+          +s 41 ofícios do CSV)                                          
+      250 +- [ ] CRUD de pessoa com `sexo` **opcional** e pendência de re
+          +visão                                                         
+      251  - [ ] Vínculos familiares com fallback em texto
+      252  - [ ] Admissão nas 7 formas de comungante e 3 de não comungant
+           e, com campos condicionais
+      253  - [ ] Demissão em todas as formas, incluindo `ORDENACAO_AO_MIN
+           ISTERIO` e `MOVIMENTO_PARA_ROL_SEPARADO`
+
+⏺ Update(11-spec-m1-rol-de-membros.md)
+  ⎿  Added 2 lines, removed 1 line
+      257  - [ ] Busca por nome parcial, tolerante a acento, com paginaçã
+           o
+      258  - [ ] Painel de alertas com os 5 tipos
+      259  - [ ] Importador em 3 passadas
+      260 -- [ ] **Teste de aceite**: importação reproduz 1.404 / 265 / 1
+          -.669 com segmentação por sexo                                 
+      260 +- [ ] **Tela de fila de revisão** (UC-M1-15) com as 6 filas   
+      261 +- [ ] **Teste de aceite**: 2.622 linhas sem perda, zero valore
+          +s categóricos órfãos, contagens iguais às do CSV              
+      262  - [ ] Exportação do rol em PDF e CSV
+      263  
+      264  ---
+
+⏺ Update(11-spec-m1-rol-de-membros.md)
+  ⎿  Added 7 lines, removed 4 lines
+      267  
+      268  | Risco | Mitigação |
+      269  |---|---|
+      270 -| Formato de data do CSV invertido (M/D vs D/M) — corrompe 1.6
+          -69 registros em silêncio | Pendência P10 do doc 09; o script d
+          -e perfilagem detecta pelo dia > 12 |                          
+      271 -| `meio_admissao` do CSV não mapear nas formas da CI | Pendênc
+          -ia P8; a passada de simulação aborta se houver valor desconhec
+          -ido |                                                         
+      272 -| Adultos batizados sem profissão de fé registrada (categoria 
+          -ambígua) | Doc 09 §3 — listar para decisão do Conselho, nunca 
+          -escolher sozinho |                                            
+      273 -| 265 não comungantes possivelmente com maioridade vencida | P
+          -endência P3 do doc 08 — **confirmar antes** de ligar a baixa a
+          -utomática, ou o sistema propõe centenas de exclusões no primei
+          -ro dia |                                                      
+      270 +| ~~Formato de data invertido~~ | **Eliminado**: datas em ISO 
+          +8601 (doc 12 §4) |                                            
+      271 +| ~~`meio_admissao` sem mapeamento~~ | **Eliminado**: os 12 va
+          +lores mapeiam 1-a-1 nas formas da CI (doc 12 §3.4) |          
+      272 +| **521 ativos sem categoria** vão parar em listas de voto e e
+          +legibilidade | `NAO_DEFINIDO` nunca entra em `emPlenaComunhao`
+          +; fila de revisão prioritária |                               
+      273 +| Fila de revisão nunca ser trabalhada e o rol permanecer sujo
+          + | Contador de progresso visível; pauta de pendências para o C
+          +onselho (UC-M1-13) |                                          
+      274 +| Deduplicação automática fundir pessoas distintas | **Nunca m
+          +esclar sozinho** — 34 nomes duplicados vão para comparação lad
+          +o a lado |                                                    
+      275 +| Não comungantes com maioridade vencida | Pendência P3 do doc
+          + 08 — **confirmar antes** de ligar a baixa automática, ou o si
+          +stema propõe centenas de exclusões no primeiro dia |          
+      276 +| Sistema de origem continuar em uso em paralelo | Pendência *
+          +*P17** do doc 12 — decidir substituição × convivência **antes*
+          +* de importar |                                               
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 1 line, removed 1 line
+      16  | 01 | `01-roadmap-modelagem.md` | Passo a passo até o modelo p
+          ronto | Painel de controle das fases |
+      17  | 02 | `02-glossario-dominio.md` | Vocabulário canônico (termo 
+          → significado → entidade) | Sempre que ficar em dúvida sobre um
+           nome |
+      18  | 03 | `03-regras-constitucionais-igreja-local.md` | Regras ext
+          raídas da CI, numeradas (RN-XX-00) | Ao implementar validações 
+          |
+      19 -| 04 | `04-modelo-de-entidades.md` | **v2** — entidades, atribu
+         -tos, invariantes, diagrama ER | Referência central do modelo | 
+      19 +| 04 | `04-modelo-de-entidades.md` | **v3** — entidades, atribu
+         +tos, invariantes, diagrama ER | Referência central do modelo | 
+      20  | 05 | `05-maquinas-de-estado.md` | Ciclos de vida (membro, man
+          dato, carta, relação pastoral) | Ao implementar transições/stat
+          us |
+      21  | 06 | `06-modulos-e-casos-de-uso.md` | Módulos do app e casos 
+          de uso por entidade | Ao fatiar o backlog |
+      22  | 07 | `07-decisoes-em-aberto.md` | Decisões do usuário — **res
+          pondido** | Histórico das escolhas |
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 23 lines, removed 17 lines
+      20  | 05 | `05-maquinas-de-estado.md` | Ciclos de vida (membro, man
+          dato, carta, relação pastoral) | Ao implementar transições/stat
+          us |
+      21  | 06 | `06-modulos-e-casos-de-uso.md` | Módulos do app e casos 
+          de uso por entidade | Ao fatiar o backlog |
+      22  | 07 | `07-decisoes-em-aberto.md` | Decisões do usuário — **res
+          pondido** | Histórico das escolhas |
+      23 -| 08 | `08-analise-relatorio-estatistico.md` | Decodificação do
+         - formulário CSM-IPB (contrato de saída) | Ao implementar relató
+         -rios |                                                         
+      24 -| 09 | `09-mapeamento-importacao-csv.md` | CSV de origem → mode
+         -lo, coluna a coluna | Ao construir o importador |              
+      23 +| 08 | `08-analise-relatorio-estatistico.md` | Estrutura do for
+         +mulário CSM-IPB ⚠️ *3 ressalvas no topo* | Ao implementar relat
+         +órios |                                                        
+      24 +| 09 | `09-mapeamento-importacao-csv.md` | ⚠️ *parcialmente sup
+         +erado pelo doc 12* | Estratégia de importação |                
+      25  | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices
+           | Ao criar as migrations |
+      26  | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo
+           (E1) | **Para começar a codar** |
+      27 +| 12 | `12-perfil-dados-csv.md` | **Perfil medido dos 2.622 reg
+         +istros reais** | **Fonte da verdade sobre os dados** |         
+      28  
+      29  ### Insumos
+      30  
+      30 -- `constituicao-igreja-presbiteriana.md` — fonte da verdade, 15
+         -2 artigos                                                      
+      31 -- `relatorio-igreja.pdf` — relatório estatístico oficial 2025 (
+         -CSM-IPB 2021 v8.0), já analisado no doc 08                     
+      31 +- `constituicao-igreja-presbiteriana.md` — fonte da verdade jur
+         +ídica, 152 artigos                                             
+      32 +- `membros_rows.csv` — rol atual, 2.622 registros, analisado no
+         + doc 12                                                        
+      33 +- `relatorio-igreja.pdf` — relatório estatístico 2025; usado só
+         + para entender a **estrutura** do formulário (os números não va
+         +lem como validação)                                            
+      34  
+      35  ## Estado atual
+      36  
+      37  - [x] Constituição lida e catalogada
+      38  - [x] Roadmap, glossário, regras constitucionais
+      37 -- [x] Modelo de entidades v1 → **v2**                          
+      39 +- [x] Modelo de entidades v1 → v2 → **v3**                     
+      40  - [x] Máquinas de estado · módulos e casos de uso
+      39 -- [x] Decisões do bloco A e B respondidas                      
+      40 -- [x] Relatório estatístico oficial analisado                  
+      41 -- [x] Mapeamento da importação do CSV                          
+      42 -- [x] Schema do banco (MVP)                                    
+      43 -- [x] Spec do M1                                               
+      44 -- [ ] **Você**: rodar o script de perfilagem do CSV (doc 09 §8)
+         - e responder P7–P10                                            
+      45 -- [ ] Implementar E1 (migrations 001–004 + importador + rol)   
+      41 +- [x] Decisões dos blocos A e B respondidas                    
+      42 +- [x] Formulário estatístico decodificado (com ressalvas)      
+      43 +- [x] **CSV real perfilado — P7, P8, P9 e P10 resolvidas**     
+      44 +- [x] Schema do banco (MVP) ajustado aos dados reais           
+      45 +- [x] Spec do M1 com fila de revisão                           
+      46 +- [ ] **Você**: responder P11–P18 (doc 12 §7)                  
+      47 +- [ ] Implementar E1 (migrations 001–005 + importador + rol + f
+         +ila de revisão)                                                
+      48  
+      47 -## Números da IPA (do relatório 2025)                          
+      49 +## Números reais da IPA (do CSV, não do relatório)             
+      50  
+      49 -1.669 membros (1.404 comungantes · 265 não comungantes) · 9 pas
+         -tores · 21 presbíteros · 28 diáconos · 2 congregações · 1 ponto
+         - de pregação · 3 escolas dominicais.                           
+      51 +**2.622 registros** · 1.777 ativos: 1.125 comungantes · 131 não
+         + comungantes · **521 sem categoria**                           
+      52 +21 presbíteros · 13 presbíteros em disponibilidade · 7 diáconos
+         + · 2 congregações · 1 ponto de pregação                        
+      53  
+      51 -Isto não é uma igreja pequena — paginação, busca e importação e
+         -m lote são requisitos desde o primeiro dia.                    
+      54 +**Lacunas conhecidas**: 860 sem sexo · 554 sem categoria · 447 
+         +inativos sem data de demissão · 34 nomes duplicados.           
+      55 +O rol chega sujo, e limpá-lo é trabalho de meses — por isso a f
+         +ila de revisão é funcionalidade, não relatório.                
+      56  
+      57  ## Próxima ação (uma só)
+      58  
+      55 -Rode o script do **doc 09, §8** sobre o CSV do rol e me mande a
+         - saída. Ele responde de uma vez as pendências P7, P8 e P10 — qu
+         -e são o que falta para o importador ficar pronto.              
+      59 +Abra `12-perfil-dados-csv.md` e responda **P11, P12 e P14** — a
+         +s três que travam o importador (o que fazer com os 521 sem cate
+         +goria, como resolver situação × data de demissão, e o formato d
+         +o número de rol).                                              
+      60  
+      57 -Se estiver sem energia para isso: leia só o `11-spec-m1-rol-de-
+         -membros.md`. É o que se transforma em código.                  
+      61 +**P17 é a mais importante estrategicamente**: existe um sistema
+         + rodando hoje? Se sim, o novo substitui ou convive? Isso muda o
+         + projeto inteiro.                                              
+      62 +                                                               
+      63 +Se estiver sem energia: leia só o §5 do doc 12. São os três pro
+         +blemas de dados em uma página.                                 
+
+  Wrote 2 memories (ctrl+o to expand)
+
+⏺ CSV analisado de verdade. Novo: 12-perfil-dados-csv.md. Atualizados: 04 (→v3),
+  08, 09, 10, 11, 00.
+
+  O que os dados derrubaram
+
+  Três coisas que eu tinha escrito estavam erradas, e o arquivo real provou:
+
+  1. Categoria não pode vir de data_profissao_fe. Eu propus essa derivação no
+  doc 09. Só 432 dos 1.291 comungantes têm o campo preenchido — daria 641 em vez
+  de 1.291, erro de 50%. A coluna membro é a única fonte confiável.
+  2. sexo não pode ser obrigatório. Faltam 860 (33%). Eu tinha posto NOT NULL no
+  schema; isso sozinho abortaria a importação inteira.
+  3. oficial vale muito mais do que eu supus. Eu escrevi que era flag booleano e
+  não deveria virar ofício. Traz Presbítero (21), Presbítero em disponibilidade
+  (13) e Diácono (7) — inclusive a distinção de disponibilidade do Art. 54 §2º,
+  que é justamente a nuance que eu temia perder. São 41 ofícios importáveis já
+  na E1.
+
+  Também caíram duas CHECK do schema: "comungante tem profissão de fé" e
+  "demitido tem data de demissão". Ambas expressam regras corretas da
+  Constituição, mas violam 1.300+ registros legítimos. Viraram validação de
+  aplicação com fila de revisão — reintroduzi-las depois da limpeza é uma
+  migration de uma linha.
+
+  O que se confirmou
+
+  Datas em ISO 8601 (1979-01-23) — o risco de corrupção silenciosa por D/M vs
+  M/D simplesmente não existe. E meio_admissao mapeia 1-a-1 nas 10 formas dos
+  Arts. 16 e 17, sem nenhum valor órfão: quem manteve esse rol usou a linguagem
+  da Constituição. Só 2 valores de meio_demissao ficaram ambíguos (P13).
+
+  O problema real do módulo 1
+
+  Não é modelagem, é estado dos dados: 521 ativos sem categoria · 860 sem sexo ·
+  447 inativos sem data de demissão · 34 nomes duplicados (a maioria com data
+  de nascimento idêntica — duplicatas reais, não homônimos).
+
+  Os 521 não são lixo: 89% têm forma de admissão e foram criados em março/abril
+  de 2026. São membros de verdade com uma coluna em branco. Por isso adicionei o
+  UC-M1-15 — fila de revisão como funcionalidade de primeira classe, não
+  relatório de erro. Limpar isso é trabalho de meses e precisa de tela própria,
+  com progresso visível e capacidade de adiar item.
+
+  Duas notas
+
+  numero_ordem é AAAA + sequência (20181567, 957 registros com prefixo 2018),
+  não inteiro sequencial — isso revisa sua decisão B3-a. Recomendo preservar o
+  padrão como texto.
+
+  E created_at com timezone, UUIDs e caminhos picture/ indicam um Postgres —
+  provavelmente Supabase — em uso desde março de 2026. Se há uma aplicação
+  rodando hoje, precisamos decidir se o novo sistema substitui ou convive com
+  ela antes de importar qualquer coisa. É a P17, e é a pergunta mais consequente
+  da lista.
+
+  Próximo passo: responder P11, P12 e P14 (doc 12 §7) destrava o importador. P17
+  destrava a estratégia.
+
+✻ Worked for 10m 26s
+
+※ recap: You're modeling entities for the Igreja Presbiteriana de Anápolis management system, and I've finished analyzing the real member CSV against the IPB constitution. Next: answer P11, P12, P14 and P17 in doc 12 to unblock the importer. (disable recaps in /config)
+
+❯ @12-perfil-dados-csv.md respondido                                            
+  ⎿  Read 12-perfil-dados-csv.md (304 lines)
+
+⏺ Todas as pendências resolvidas. Vou simular as regras decididas para produzir
+  os números esperados da importação.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Todas resolvidas. A simulação revelou dois pontos que a decisão P12(b) força —
+  vou escrever o spec do importador com eles tratados.
+
+⏺ Write(13-spec-importador.md)
+  ⎿  Wrote 381 lines to 13-spec-importador.md
+       1 # 13 — Spec do importador do rol
+       2 
+       3 Algoritmo definitivo de migração de `membros_rows.csv` (2.622 li
+       4 Todas as decisões estão fechadas (doc 07 blocos A/B, doc 12 P11–
+         P18). **Este documento é implementável como está.**
+       5 
+       6 ---
+       8 ## 1. Decisões aplicadas
+       9 
+      10 | # | Decisão | Efeito no algoritmo |
+     … +475 lines (ctrl+o to expand)
+
+⏺ Update(12-perfil-dados-csv.md)
+  ⎿  Added 26 lines, removed 1 line
+      254  
+      255  ---
+      256  
+      257 -## 7. Decisões pendentes                                      
+      257 +## 6.1 Correção a este documento após a simulação             
+      258  
+      259 +Ao simular as regras decididas, dois pontos do §3.1 e do §5.1 
+          +se mostraram imprecisos:                                      
+      260 +                                                              
+      261 +1. **Os 622 `Não membro` são ex-membros, não não-membros.** To
+          +dos os 622 têm histórico de membresia (385 com `numero_ordem`,
+          + 292 com `meio_admissao`, 287 com `meio_demissao`). Devem rece
+          +ber `Membro(situacao = DEMITIDO)`, não ficar como `Pessoa` pur
+          +a — caso contrário 385 números de rol históricos se perdem. Ve
+          +r doc 13 §4.1.                                                
+      262 +2. **A inferência de P11(a) resolve mais do que eu estimei**: 
+          +466 registros classificados, sobrando **88** em `NAO_DEFINIDO`
+          + (eu havia estimado 58 sobre uma base menor). Números finais m
+          +edidos no doc 13 §7.                                          
+      263 +                                                              
+      264 +---                                                           
+      265 +                                                              
+      266 +## 7. Decisões pendentes — ✅ **todas respondidas**           
+      267 +                                                              
+      268 +| # | Decisão | Onde foi aplicada |                           
+      269 +|---|---|---|                                                 
+      270 +| P11 | (a) inferir categoria pela forma de admissão | doc 13 
+          +§4.2 |                                                        
+      271 +| P12 | **(b) `situacao` manda** | doc 13 §4.3 — **três conseq
+          +uências tratadas em §6** |                                    
+      272 +| P13 | `Transferência presbitério` = ordenação ao ministério 
+          +| doc 13 §4.5 |                                               
+      273 +| P14 | (a) preservar `numero_ordem` como texto | doc 13 §4.4 
+          +— abriu a **P19** |                                           
+      274 +| P15 | fotos disponíveis | doc 13 §8 |                       
+      275 +| P16 | diáconos desatualizados, correção no sistema novo | do
+          +c 13 §4.7 |                                                   
+      276 +| P17 | **substitui** o sistema atual | doc 13 §2 — importação
+          + única, sem sincronização |                                   
+      277 +| P18 | (a) inferir sexo por prenome | doc 13 §4.6 |          
+      278 +                                                              
+      279 +Pendências novas abertas pela simulação: **P19** (numeração de
+          + novos membros) e **P20** (data de corte), no doc 13 §9.      
+      280 +                                                              
+      281 +<details>                                                     
+      282 +<summary>Texto original das decisões (histórico)</summary>    
+      283 +                                                              
+      284  ### P11 — Os 521 ativos sem categoria
+      285  - [ ] **(a) Recomendado** — inferir pela forma de admissão (Ba
+           tismo infantil / Jurisdição sobre os responsáveis → não comung
+           ante; demais → comungante), marcar `categoriaInferida = true`,
+            e gerar fila de revisão.
+      286  - [ ] (b) Importar todos como `NAO_DEFINIDO` e revisar 521 à m
+           ão.
+
+⏺ Update(12-perfil-dados-csv.md)
+  ⎿  Added 2 lines
+      326  - [ ] (b) Deixar todos os 860 em branco.
+      327  
+      328  **Decisão:** (a)
+      329 +                                                              
+      330 +</details>                                                    
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 1 line, removed 1 line
+      217  CREATE TABLE admissao (
+      218    id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(
+           ),
+      219    membro_id          uuid NOT NULL REFERENCES membro(id) ON DE
+           LETE CASCADE,
+      220 -  data               date NOT NULL,                           
+      220 +  data               date,          -- NULLABLE: 441 admissoes
+          + historicas sem data (doc 13 §6.3)                            
+      221    forma              forma_admissao NOT NULL,
+      222    resolucao_id       uuid,                   -- FK adicionada 
+           depois
+      223    igreja_origem_nome text,
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 1 line, removed 1 line
+      234  CREATE TABLE demissao (
+      235    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid
+           (),
+      236    membro_id           uuid NOT NULL REFERENCES membro(id) ON D
+           ELETE CASCADE,
+      237 -  data                date NOT NULL,                          
+      237 +  data                date,          -- NULLABLE pelo mesmo mo
+          +tivo da admissao                                              
+      238    forma               forma_demissao NOT NULL,
+      239    resolucao_id        uuid,
+      240    igreja_destino_nome text,
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 2 lines, removed 1 line
+      24  | 09 | `09-mapeamento-importacao-csv.md` | ⚠️ *parcialmente sup
+          erado pelo doc 12* | Estratégia de importação |
+      25  | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices
+           | Ao criar as migrations |
+      26  | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo
+           (E1) | **Para começar a codar** |
+      27 -| 12 | `12-perfil-dados-csv.md` | **Perfil medido dos 2.622 reg
+         -istros reais** | **Fonte da verdade sobre os dados** |         
+      27 +| 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 regis
+         +tros reais | Fonte da verdade sobre os dados |                 
+      28 +| 13 | `13-spec-importador.md` | **Algoritmo completo da migraç
+         +ão** | **Para implementar o importador** |                     
+      29  
+      30  ### Insumos
+      31  
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 13 lines, removed 11 lines
+      41  - [x] Máquinas de estado · módulos e casos de uso
+      42  - [x] Decisões dos blocos A e B respondidas
+      43  - [x] Formulário estatístico decodificado (com ressalvas)
+      44 -- [x] **CSV real perfilado — P7, P8, P9 e P10 resolvidas**     
+      44 +- [x] **CSV real perfilado — P7 a P10 resolvidas**             
+      45  - [x] Schema do banco (MVP) ajustado aos dados reais
+      46  - [x] Spec do M1 com fila de revisão
+      47 -- [ ] **Você**: responder P11–P18 (doc 12 §7)                  
+      48 -- [ ] Implementar E1 (migrations 001–005 + importador + rol + f
+         -ila de revisão)                                                
+      47 +- [x] **P11–P18 respondidas · spec do importador escrito e simu
+         +lado**                                                         
+      48 +- [ ] **Você**: responder P19 e P20 (doc 13 §9) — pequenas, não
+         + travam o começo                                               
+      49 +- [ ] Implementar E1 (migrations 001–005 → importador → rol → f
+         +ila de revisão)                                                
+      50  
+      50 -## Números reais da IPA (do CSV, não do relatório)             
+      51 +## Números da importação (simulados com as regras já decididas)
+      52  
+      52 -**2.622 registros** · 1.777 ativos: 1.125 comungantes · 131 não
+         - comungantes · **521 sem categoria**                           
+      53 -21 presbíteros · 13 presbíteros em disponibilidade · 7 diáconos
+         - · 2 congregações · 1 ponto de pregação                        
+      53 +**2.622 pessoas · 2.622 membros**                              
+      54 +1.751 comungantes · 161 não comungantes · 88 sem categoria defi
+         +nida · 466 com categoria inferida                              
+      55 +1.876 ativos · 746 demitidos                                   
+      56 +2.178 admissões · 312 demissões · 1.276 atos pastorais · 41 ofí
+         +cios (21 presbíteros, 13 em disponibilidade, 7 diáconos)       
+      57  
+      55 -**Lacunas conhecidas**: 860 sem sexo · 554 sem categoria · 447 
+         -inativos sem data de demissão · 34 nomes duplicados.           
+      56 -O rol chega sujo, e limpá-lo é trabalho de meses — por isso a f
+         -ila de revisão é funcionalidade, não relatório.                
+      58 +**Filas de revisão geradas**: ~1.500 itens. Não é sinal de impo
+         +rtação ruim — é o estado real do rol ficando visível pela prime
+         +ira vez.                                                       
+      59  
+      60  ## Próxima ação (uma só)
+      61  
+      60 -Abra `12-perfil-dados-csv.md` e responda **P11, P12 e P14** — a
+         -s três que travam o importador (o que fazer com os 521 sem cate
+         -goria, como resolver situação × data de demissão, e o formato d
+         -o número de rol).                                              
+      62 +Comece a implementar: **migrations `001–005`** do doc 10, depoi
+         +s o importador seguindo o doc 13 §11 (12 passos, na ordem).    
+      63  
+      62 -**P17 é a mais importante estrategicamente**: existe um sistema
+         - rodando hoje? Se sim, o novo substitui ou convive? Isso muda o
+         - projeto inteiro.                                              
+      64 +Os passos 1–5 já produzem um rol consultável. Se a energia acab
+         +ar aí, o projeto já tem valor.                                 
+      65  
+      64 -Se estiver sem energia: leia só o §5 do doc 12. São os três pro
+         -blemas de dados em uma página.                                 
+      66 +Se preferir fechar as pontas antes: P19 e P20 do doc 13 §9 são 
+         +duas perguntas curtas (padrão de numeração para novos membros e
+         + data de congelamento do sistema atual).                       
+
+⏺ Novo: 13-spec-importador.md — algoritmo completo, simulado contra o CSV real.
+  Atualizados: 12, 10, 00.
+
+  Números da importação (simulados, não estimados)
+
+  ┌────────────────────────────────────────────────┬────────────────────────┐
+  │                                                │                        │
+  ├────────────────────────────────────────────────┼────────────────────────┤
+  │ Pessoas / Membros                              │          2.622 / 2.622 │
+  ├────────────────────────────────────────────────┼────────────────────────┤
+  │ Comungantes · não comungantes · indefinidos    │       1.751 · 161 · 88 │
+  ├────────────────────────────────────────────────┼────────────────────────┤
+  │ Categoria inferida (P11a)                      │                    466 │
+  ├────────────────────────────────────────────────┼────────────────────────┤
+  │ Ativos · demitidos                             │            1.876 · 746 │
+  ├────────────────────────────────────────────────┼────────────────────────┤
+  │ Admissões · demissões · atos pastorais ·       │ 2.178 · 312 · 1.276 ·  │
+  │ ofícios                                        │                     41 │
+  └────────────────────────────────────────────────┴────────────────────────┘
+
+  A inferência de P11(a) funcionou melhor do que eu previa: dos 554 sem
+  categoria sobram 88 para triagem manual.
+
+  Três coisas que a simulação revelou
+
+  1. Os 622 "Não membro" são ex-membros, não não-membros. Todos os 622 têm
+  histórico de membresia — 385 com numero_ordem, 292 com forma de admissão.
+  Tratá-los como Pessoa pura, como eu havia escrito no doc 12, descartaria 385
+  números de rol históricos. Todos recebem Membro(DEMITIDO).
+
+  2. Sua decisão P12(b) tem três consequências concretas — está tudo tratado no
+  doc 13 §6, mas vale saber:
+
+  - 311 demitidos ficam sem evento de demissão (não têm data nem forma).
+  Solução: situacao = DEMITIDO sem registro em demissao. A pessoa sai do rol
+  ativo corretamente, e a tabela de eventos continua honesta — só contém
+  demissões realmente datadas.
+  - 13 registros ficam ATIVO com data de demissão preenchida (2 Ativo + 11
+  Revisar). Preservo o valor e marco para revisão; são poucos, a secretaria
+  decide um a um.
+  - 441 admissões não têm data, só forma. Recomendo tornar admissao.data e
+  demissao.data nullable — a alternativa descartaria a forma de admissão de 441
+  pessoas, que é dado real e só existe no CSV. Já ajustei o schema.
+
+  3. A convenção de numero_ordem mudou em 2024. De 2018 a 2023 a sequência era
+  contínua entre anos (2018 termina em 2694, 2019 começa em 2764). Em 2024
+  reiniciou em 100 — alguém passou a numerar por ano. Isso virou a P19: proponho
+  seguir a convenção nova (20260001), mas é decisão sua.
+
+  Sobre P17 = substituição
+
+  Simplifica bastante: importação única em transação só, sem upsert, sem
+  detecção de alteração, sem resolução de conflito — que seria o grosso da
+  complexidade no cenário de convivência.
+
+  O contraponto operacional é a P20: você precisa combinar uma data de corte com
+  a secretaria e congelar o sistema atual antes da exportação definitiva.
+  Cadastro feito depois disso se perde.
+
+  Para começar
+
+  Migrations 001–005 do doc 10, depois o importador na ordem do doc 13 §11. Os
+  passos 1–5 já entregam um rol consultável.
+
+  Uma expectativa a calibrar: a importação vai gerar ~1.500 itens de revisão.
+  Isso não é falha — é o estado real do rol ficando visível pela primeira vez.
+  Se a tela de fila de revisão não existir junto com o importador, esse número
+  vira paralisia em vez de plano de trabalho.
+
+✻ Cogitated for 4m 24s
+
+❯ ok @13-spec-importador.md respondido                                          
+  ⎿  Read 13-spec-importador.md (382 lines)
+⏺ Tudo decidido. Aplicando P19/P20 e fechando a fase de modelagem.
+
+⏺ Update(13-spec-importador.md)
+  ⎿  Added 12 lines, removed 1 line
+      122  
+      123  ⚠️ **A convenção mudou.** De 2018 a 2023 a sequência foi **con
+           tínua entre anos** (2018 termina em 2694, 2019 começa em 2764)
+           . Em **2024 ela reiniciou em 100** — alguém passou a numerar p
+           or ano.
+      124  
+      125 -**Regra proposta para números novos** (confirmar — §9, P19): s
+          -eguir a convenção de 2024, ou seja `AAAA` + sequência **reinic
+          -iada a cada ano**, começando em `0001`. Para 2026, o primeiro 
+          -seria `20260001`.                                             
+      125 +**Regra para números novos — P19(a) decidida**: `AAAA` + sequê
+          +ncia de 4 dígitos **reiniciada a cada ano**, seguindo a conven
+          +ção adotada em 2024.                                          
+      126  
+      127 +```                                                           
+      128 +proximo_numero_rol(ano):                                      
+      129 +    seq = SELECT max(cast(substring(numero_rol, 5, 4) as int))
+      130 +          FROM membro WHERE substring(numero_rol, 1, 4) = ano 
+      131 +    return ano || lpad(coalesce(seq, 0) + 1, 4, '0')          
+      132 +```                                                           
+      133 +                                                              
+      134 +Os dados não contêm nenhum número de 2025 nem de 2026 (só 2018
+          +–2024), então o primeiro emitido pelo sistema será **`20260001
+          +`**. A função acima é genérica: se aparecer um número de 2026 
+          +vindo de outra origem, ela continua a partir dele em vez de co
+          +lidir.                                                        
+      135 +                                                              
+      136 +⚠️ **Concorrência**: com vários operadores simultâneos (decisã
+          +o B7), gerar o número por `SELECT max()` sem trava produz dupl
+          +icata. Usar sequência do banco por ano, ou `INSERT` com retry 
+          +sob a constraint `UNIQUE` de `numero_rol`.                    
+      137 +                                                              
+      138  ### 4.5 `admissao` e `demissao`
+      139  
+      140  ```
+
+⏺ Update(13-spec-importador.md)
+  ⎿  Added 11 lines, removed 10 lines
+      340  
+      341  ---
+      342  
+      343 -## 9. Pendências residuais                                    
+      343 +## 9. Pendências residuais — ✅ **resolvidas**                
+      344  
+      345 -### P19 — Numeração para novos membros                        
+      346 -A convenção mudou em 2024 (sequência reiniciou em 100). Confir
+          -mo o padrão para 2026 em diante?                              
+      347 -- [ ] **(a) Recomendado** — `AAAA` + 4 dígitos reiniciando a c
+          -ada ano; 2026 começa em `20260001`.                           
+      348 -- [ ] (b) Continuar a sequência contínua de 2023 (próximo seri
+          -a `20265004`).                                                
+      349 -- [ ] (c) Outro — a secretaria tem uma regra que não está visí
+          -vel nos dados.                                                
+      345 +| # | Decisão | Aplicada em |                                 
+      346 +|---|---|---|                                                 
+      347 +| **P19** | (a) `AAAA` + 4 dígitos reiniciando por ano; primei
+          +ro novo = `20260001` | §4.4 |                                 
+      348 +| **P20** | Data de corte: **2026-08-10** | abaixo |          
+      349  
+      351 -**Decisão:** (a)                                              
+      350 +### P20 — consequência operacional                            
+      351  
+      353 -### P20 — Data de corte                                       
+      354 -Qual data o sistema atual congela para a exportação definitiva
+          - do CSV?                                                      
+      355 -**Decisão:** Data de hoje 2026-08-10                          
+      352 +O `membros_rows.csv` em mãos **é a exportação definitiva** (ge
+          +rado em 10/08/2026). Isso significa:                          
+      353  
+      354 +- Os números da conferência (§7) são **finais**, não estimativ
+          +as. Se a importação der resultado diferente, o bug é do import
+          +ador.                                                         
+      355 +- A partir de agora, **todo cadastro feito no sistema antigo s
+          +e perde**. Avise a secretaria: ou param de cadastrar, ou anota
+          +m em papel o que entrar entre hoje e a virada, para relançar n
+          +o sistema novo.                                               
+      356 +- Se a virada demorar semanas, reexportar mais perto da data é
+          + mais seguro do que acumular lançamentos em papel. Nesse caso,
+          + **rode a passada de validação de novo** — valor categórico no
+          +vo é erro bloqueante de propósito (§5).                       
+      357 +                                                              
+      358  ---
+      359  
+      360  ## 10. Filas de revisão geradas (entrada do UC-M1-15)
+
+⏺ Write(14-decisao-stack-tecnica.md)
+  ⎿  Wrote 164 lines to 14-decisao-stack-tecnica.md
+      1 # 14 — Decisão de stack técnica
+      2 
+      3 Última decisão adiada (doc 07, C8: *"só faz sentido escolher depo
+        is das specs"*). As specs estão prontas, então chegou a hora.
+      4 
+      6 
+      7 ## 1. O que o sistema realmente precisa fazer
+      8 
+      9 Destilado dos docs 10, 11 e 13 — não do que "sistemas de igreja" 
+        costumam ter:
+     … +219 lines (ctrl+o to expand)
+
+⏺ Update(01-roadmap-modelagem.md)
+  ⎿  Added 10 lines, removed 4 lines
+      11  ```
+      12  FASE 1  Extrair       →  o que a Constituição diz sobre igreja 
+          local    [FEITO]
+      13  FASE 2  Nomear        →  glossário / linguagem ubíqua          
+                    [FEITO]
+      14 -FASE 3  Modelar       →  entidades, atributos, relações        
+         -          [FEITO — v1]                                         
+      15 -FASE 4  Decidir       →  suas escolhas locais                  
+         -          [VOCÊ]                                               
+      16 -FASE 5  Especificar   →  casos de uso → telas → schema         
+      17 -FASE 6  Cortar        →  MVP: o que entra na v1 do app         
+      14 +FASE 3  Modelar       →  entidades, atributos, relações        
+         +          [FEITO — v3]                                         
+      15 +FASE 4  Decidir       →  suas escolhas locais                  
+         +          [FEITO — A1..P20]                                    
+      16 +FASE 5  Especificar   →  casos de uso → telas → schema         
+         +          [FEITO — M1]                                         
+      17 +FASE 6  Cortar        →  MVP: o que entra na v1 do app         
+         +          [FEITO — E1]                                         
+      18 +───────────────────────────────────────────────────────────────
+         +─────────────────                                              
+      19 +FASE 7  Construir     →  stack (doc 14) → migrations → importad
+         +or → rol  [AGORA]                                              
+      20  ```
+      21  
+      22 +> **A modelagem acabou.** As fases 1 a 6 estão fechadas: 24 dec
+         +isões respondidas, modelo na v3, schema pronto, importador simu
+         +lado contra os dados reais. O que falta é código.              
+      23 +>                                                              
+      24 +> As specs dos módulos M2 a M9 (§FASE 5 abaixo) continuam pende
+         +ntes **de propósito** — escrever agora seria adivinhar. Escreva
+         + a spec de cada módulo quando chegar a vez dele, com o sistema 
+         +já em uso e a secretaria dando retorno.                        
+      25 +                                                               
+      26  ---
+      27  
+      28  ## FASE 1 — Extrair (feito)
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 2 lines, removed 1 line
+      25  | 10 | `10-schema-banco.md` | DDL do MVP, constraints e índices
+           | Ao criar as migrations |
+      26  | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo
+           (E1) | **Para começar a codar** |
+      27  | 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 regis
+          tros reais | Fonte da verdade sobre os dados |
+      28 -| 13 | `13-spec-importador.md` | **Algoritmo completo da migraç
+         -ão** | **Para implementar o importador** |                     
+      28 +| 13 | `13-spec-importador.md` | Algoritmo completo da migração
+         + | Para implementar o importador |                             
+      29 +| 14 | `14-decisao-stack-tecnica.md` | **Escolha da stack + dec
+         +isões técnicas fixas** | **Leia agora — é a única coisa que fal
+         +ta decidir** |                                                 
+      30  
+      31  ### Insumos
+      32  
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 3 lines, removed 2 lines
+      45  - [x] **CSV real perfilado — P7 a P10 resolvidas**
+      46  - [x] Schema do banco (MVP) ajustado aos dados reais
+      47  - [x] Spec do M1 com fila de revisão
+      48 -- [x] **P11–P18 respondidas · spec do importador escrito e simu
+         -lado**                                                         
+      49 -- [ ] **Você**: responder P19 e P20 (doc 13 §9) — pequenas, não
+         - travam o começo                                               
+      48 +- [x] **P11–P20 respondidas · importador especificado e simulad
+         +o**                                                            
+      49 +- [x] **Modelagem encerrada** — fases 1 a 6 do roadmap fechadas
+      50 +- [ ] **Você**: escolher a stack (doc 14, P21–P23)             
+      51  - [ ] Implementar E1 (migrations 001–005 → importador → rol → f
+          ila de revisão)
+      52  
+      53  ## Números da importação (simulados com as regras já decididas)
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 9 lines, removed 3 lines
+      61  
+      62  ## Próxima ação (uma só)
+      63  
+      64 -Comece a implementar: **migrations `001–005`** do doc 10, depoi
+         -s o importador seguindo o doc 13 §11 (12 passos, na ordem).    
+      64 +Responda **P21** no doc 14: em que stack você programa com conf
+         +orto hoje?                                                     
+      65  
+      66 -Os passos 1–5 já produzem um rol consultável. Se a energia acab
+         -ar aí, o projeto já tem valor.                                 
+      66 +É a última decisão pendente do projeto inteiro. Depois dela o c
+         +aminho é só código, na ordem do doc 13 §11.                    
+      67  
+      68 -Se preferir fechar as pontas antes: P19 e P20 do doc 13 §9 são 
+         -duas perguntas curtas (padrão de numeração para novos membros e
+         - data de congelamento do sistema atual).                       
+      68 +```                                                            
+      69 +P21 → migrations → importador → tela de rol → fila de revisão  
+      70 +                                                    ↓          
+      71 +                                    ▶ A SECRETARIA COMEÇA A USA
+         +R                                                              
+      72 +```                                                            
+      73 +                                                               
+      74 +⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exporta
+         +ção definitiva. Todo cadastro feito no sistema antigo a partir 
+         +de agora se perde na virada — combine isso com a secretaria hoj
+         +e, não na véspera.                                             
+
+  Wrote 1 memory (ctrl+o to expand)
+
+⏺ Novo: 14-decisao-stack-tecnica.md. Atualizados: 13 (P19/P20 aplicadas), 01
+  (roadmap), 00.
+
+  A modelagem acabou
+
+  Fases 1 a 6 do roadmap fechadas. 24 decisões respondidas, modelo na v3, schema
+  pronto, importador simulado contra os dados reais. O que falta é código — e
+  uma decisão.
+
+  P19 aplicada com uma ressalva que a implementação precisa tratar: a função
+  geradora de numero_rol não pode ser um SELECT max() solto. Com secretária,
+  secretário do Conselho e pastores cadastrando ao mesmo tempo (sua decisão B7),
+  duas admissões simultâneas geram o mesmo número. Precisa de sequência por ano
+  no banco ou retry sobre a constraint UNIQUE. Está anotado no doc 13 §4.4.
+
+  P20 tem uma consequência para hoje, não para a virada: o CSV de 10/08 é a
+  exportação definitiva, então todo cadastro feito no sistema antigo a partir de
+  agora se perde. Vale combinar com a secretaria já — ou param de cadastrar, ou
+  anotam em papel. Se a virada demorar semanas, reexportar mais perto é mais
+  seguro que acumular papel.
+
+  A última decisão
+
+  O doc 14 traz a escolha de stack, que eu tinha adiado de propósito no doc 07
+  (C8) até as specs existirem.
+
+  O ponto central: o gargalo deste projeto é sua energia, não a máquina. São
+  2.622 registros e ~10 usuários — cabe em qualquer coisa. Então a regra que
+  decide é familiaridade, não otimalidade: você vai voltar a este código depois
+  de semanas sem tocá-lo, e somar uma curva de framework novo a um domínio de
+  152 artigos constitucionais é como projetos assim morrem no mês dois.
+
+  Duas recomendações, dependendo de você:
+
+  - Já vive em JS/TS (o CSV sugere Supabase — UUIDs, timestamps +00, paths
+  picture/): Next.js + Postgres + Drizzle + shadcn.
+  - Sabe PHP, mesmo que pouco, ou quer o caminho mais curto: Laravel + Filament.
+  O admin gerado cobre quase todo o M1 — e as filas de revisão, que são o
+  volume real de trabalho da E1, saem praticamente de graça.
+
+  Também deixei no §7 as decisões que valem em qualquer stack, para não
+  revisitar depois: Postgres (o schema usa enums nativos, índice parcial e GIN),
+  unaccent para busca sem acento, importador como script separado — ele só fala
+  SQL e pode até ser Python —, PDF via impressão do navegador na v1, e testes
+  só nas regras da Constituição, nunca no CRUD gerado.
+
+  Responda P21 e seguimos para as migrations. O marco que importa não é "M1
+  completo" — é a secretaria abrir o sistema em vez da planilha.
+
+✻ Crunched for 3m 2s
+
+※ recap: Goal: build a management system for Igreja Presbiteriana de Anápolis, modeled from the IPB constitution. Modeling is finished — 24 decisions closed, schema and importer specs ready. Next: answer P21 in doc 14, choosing your tech stack. (disable recaps in /config)
+
+❯ ok @14-decisao-stack-tecnica.md respondido                                    
+  ⎿  Read 14-decisao-stack-tecnica.md (165 lines)
+
+⏺ P21(a) + Neon + Vercel muda três coisas do doc 14 (que assumia Supabase).
+  Escrevendo o guia de implementação com a stack real.
+
+⏺ Write(15-setup-implementacao.md)
+  ⎿  Wrote 263 lines to 15-setup-implementacao.md
+       1 # 15 — Setup e guia de implementação
+       2 
+         n · deploy na Vercel**.
+       4 Este documento leva do zero até o primeiro `SELECT` no rol impor
+         tado.
+       6 ---
+       7 
+       8 ## 1. O que a escolha do Neon muda em relação ao doc 14
+      10 O doc 14 assumia Supabase. Sair dele altera três pontos concreto
+         s — nenhum deles ruim, mas todos precisam de decisão explícita:
+     … +332 lines (ctrl+o to expand)
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 11 lines, removed 1 line
+      138    atualizado_em       timestamptz NOT NULL DEFAULT now()
+      139  );
+      140  
+      141 +-- ⚠️ CORRIGIDO no doc 15 §5 — nao use to_tsvector aqui.      
+      142 +-- tsvector so acha palavra inteira: "silv" nao encontraria "S
+          +ilva".                                                        
+      143 +-- Para busca de pessoa por nome, use trigram + wrapper IMMUTA
+          +BLE de unaccent:                                              
+      144 +--                                                            
+      145 +--   CREATE EXTENSION IF NOT EXISTS unaccent;                 
+      146 +--   CREATE EXTENSION IF NOT EXISTS pg_trgm;                  
+      147 +--   CREATE FUNCTION f_unaccent(text) RETURNS text            
+      148 +--     LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT            
+      149 +--     RETURN unaccent('unaccent', $1);                       
+      150 +--                                                            
+      151  CREATE INDEX pessoa_nome_busca ON pessoa
+      142 -  USING gin (to_tsvector('portuguese', nome_completo));       
+      152 +  USING gin (f_unaccent(lower(nome_completo)) gin_trgm_ops);  
+      153  CREATE INDEX pessoa_nascimento ON pessoa (data_nascimento);
+      154  
+      155  CREATE TABLE pessoa_contato (
+
+⏺ Update(10-schema-banco.md)
+  ⎿  Added 1 line, removed 1 line
+      690  
+      691  | Consulta | Índice |
+      692  |---|---|
+      693 -| Busca de pessoa por nome parcial | `pessoa_nome_busca` (GIN 
+          -+ tsvector português) |                                       
+      693 +| Busca de pessoa por nome parcial | `pessoa_nome_busca` (GIN 
+          ++ `pg_trgm` sobre `f_unaccent(lower(nome))`) |                
+      694  | Estatística anual por forma e sexo | `admissao_data`, `demis
+           sao_data` + join em `pessoa.sexo` |
+      695  | Composição do Conselho numa data | `mandato_um_vigente`, `of
+           icio_um_em_exercicio` |
+      696  | Ausência de 6 meses por pessoa | `presenca_pessoa` |
+
+⏺ Update(13-spec-importador.md)
+  ⎿  Added 2 lines
+      338  
+      339  900 arquivos. Renomear por `pessoa_id` elimina a dependência d
+           o nome antigo (`picture/fellipe_<uuid>.jpeg`), que embute o pr
+           imeiro nome e é frágil.
+      340  
+      341 +⚠️ **`<novo storage>` ainda não está definido.** A stack escol
+          +hida (Neon + Vercel) não inclui armazenamento de arquivos — o 
+          +Neon é só banco. Ver **P24** no doc 15 §11; a recomendação é V
+          +ercel Blob.                                                   
+      342 +                                                              
+      343  ---
+      344  
+      345  ## 9. Pendências residuais — ✅ **resolvidas**
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 2 lines, removed 1 line
+      26  | 11 | `11-spec-m1-rol-de-membros.md` | Spec do primeiro módulo
+           (E1) | **Para começar a codar** |
+      27  | 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 regis
+          tros reais | Fonte da verdade sobre os dados |
+      28  | 13 | `13-spec-importador.md` | Algoritmo completo da migração
+           | Para implementar o importador |
+      29 -| 14 | `14-decisao-stack-tecnica.md` | **Escolha da stack + dec
+         -isões técnicas fixas** | **Leia agora — é a única coisa que fal
+         -ta decidir** |                                                 
+      29 +| 14 | `14-decisao-stack-tecnica.md` | Escolha da stack + decis
+         +ões técnicas fixas | Histórico da decisão |                    
+      30 +| 15 | `15-setup-implementacao.md` | **Setup Next + Neon + Verc
+         +el, armadilhas e ordem da 1ª semana** | **Ao começar a codar** 
+         +|                                                              
+      31  
+      32  ### Insumos
+      33  
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 3 lines, removed 2 lines
+      48  - [x] Spec do M1 com fila de revisão
+      49  - [x] **P11–P20 respondidas · importador especificado e simulad
+          o**
+      50  - [x] **Modelagem encerrada** — fases 1 a 6 do roadmap fechadas
+      51 -- [ ] **Você**: escolher a stack (doc 14, P21–P23)             
+      52 -- [ ] Implementar E1 (migrations 001–005 → importador → rol → f
+         -ila de revisão)                                                
+      51 +- [x] **Stack escolhida**: Next.js + TypeScript · Postgres no N
+         +eon · Vercel                                                   
+      52 +- [ ] **Você**: P24–P26 (doc 15 §11) — fotos, repositório, scaf
+         +fold                                                           
+      53 +- [ ] Implementar E1 (migrations → importador → rol → fila de r
+         +evisão)                                                        
+      54  
+      55  ## Números da importação (simulados com as regras já decididas)
+      56  
+
+⏺ Update(00-COMECE-AQUI.md)
+  ⎿  Added 7 lines, removed 5 lines
+      63  
+      64  ## Próxima ação (uma só)
+      65  
+      66 -Responda **P21** no doc 14: em que stack você programa com conf
+         -orto hoje?                                                     
+      66 +Responda **P26** no doc 15: quer que eu faça o scaffold do proj
+         +eto?                                                           
+      67  
+      68 -É a última decisão pendente do projeto inteiro. Depois dela o c
+         -aminho é só código, na ordem do doc 13 §11.                    
+      68 +Se sim, eu crio o Next, configuro Drizzle e Neon, escrevo as mi
+         +grations `0001`–`0004` a partir do doc 10 e o script de perfila
+         +gem — deixando pronto para o primeiro `drizzle-kit migrate`.   
+      69  
+      70  ```
+      71 -P21 → migrations → importador → tela de rol → fila de revisão  
+      72 -                                                    ↓          
+      73 -                                    ▶ A SECRETARIA COMEÇA A USA
+         -R                                                              
+      71 +scaffold → migrations → importador → tela de rol → fila de revi
+         +são                                                            
+      72 +                                                        ↓      
+      73 +                                        ▶ A SECRETARIA COMEÇA A
+         + USAR                                                          
+      74  ```
+      75  
+      76  ⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exporta
+          ção definitiva. Todo cadastro feito no sistema antigo a partir 
+          de agora se perde na virada — combine isso com a secretaria hoj
+          e, não na véspera.
+      77 +                                                               
+      78 +⚠️ **Continuidade (doc 15 §9)**: crie as contas Neon e Vercel c
+         +om e-mail institucional da IPA, não pessoal. Um sistema de igre
+         +ja sobrevive ao voluntário que o escreveu. É barato agora e car
+         +o depois.                                                      
+
+⏺ Novo: 15-setup-implementacao.md. Corrigidos: 10 (índice de busca), 13 (destino
+  das fotos), 00.
+
+  Três coisas que o Neon muda
+
+  O doc 14 assumia Supabase. Sua escolha por Neon é boa, mas move três peças:
+
+  1. Não há storage. O Neon é só banco — as 900 fotos ficaram sem destino. O doc
+  13 §8 dizia genericamente "<novo storage>"; agora precisa de resposta
+  concreta. Recomendo Vercel Blob (P24), pra manter tudo numa conta só.
+
+  2. Duas connection strings, não uma. Neon entrega pooled e direta. App na
+  Vercel usa a pooled; migrations e o importador usam a direta. Usar a errada
+  quebra de formas confusas — DDL através do pooler é o caso clássico.
+
+  3. Auth quando chegar não será Supabase Auth. Nada a decidir hoje; só não
+  instalar biblioteca nenhuma agora e manter toda mutação atrás de Server
+  Action, para a verificação entrar num lugar só depois.
+
+  Uma correção ao doc 10
+
+  Eu tinha especificado o índice de busca como gin(to_tsvector('portuguese', 
+  nome)). Está errado para este caso: tsvector acha palavra inteira, então
+  "silv" não encontraria "Silva" — e busca parcial por nome é exatamente o
+  requisito.
+
+  O certo é trigram (pg_trgm) sobre unaccent. E aí vem a armadilha que ia te
+  custar uma tarde: unaccent() é STABLE, não IMMUTABLE, então o Postgres recusa
+  indexá-la direto. Precisa de um wrapper IMMUTABLE. O SQL pronto está no doc 15
+  §5, e o doc 10 já aponta pra lá.
+
+  Duas recomendações que valem destacar
+
+  As migrations devem ser SQL puro, não geradas pelo Drizzle. O schema do doc 10
+  usa 11 enums nativos, índices únicos parciais (WHERE situacao = 
+  'EM_EXERCICIO' — a tradução literal do Art. 29) e GIN. ORMs traduzem isso mal.
+  Escreva o SQL do doc 10 verbatim, aplique, e só então rode drizzle-kit pull
+  para gerar o TypeScript a partir do banco real. O banco continua sendo a fonte
+  da verdade.
+
+  Use o branching do Neon para a importação. É o recurso feito sob medida para o
+  seu maior risco: cria branch, roda os 2.622 registros, confere os números do
+  doc 13 §7, e descarta se algo estiver errado. Quantas vezes precisar. A
+  importação é irreversível em produção, mas infinitamente repetível numa
+  branch.
+
+  E um requisito que virou obrigatório: o importador não pode rodar na Vercel.
+  Uma transação única com ~7.000 registros derivados estoura o limite de duração
+  da função — e timeout no meio de transação aberta é o pior cenário de
+  depuração possível. Roda local com tsx, na conexão direta. A decisão do doc 14
+  §7 ("script separado") já apontava pra isso; agora é imposição da plataforma.
+
+  Sobre continuidade
+
+  Crie as contas Neon e Vercel com e-mail institucional da IPA, não pessoal. Um
+  sistema de igreja sobrevive ao voluntário que o escreveu, e essa é a coisa
+  mais barata de acertar agora e mais cara de corrigir depois.
+
+  Próximo passo — P26: quer que eu faça o scaffold? Crio o Next, configuro
+  Drizzle e Neon, escrevo as migrations 0001–0004 do doc 10 e o script de
+  perfilagem, deixando pronto para o primeiro drizzle-kit migrate. Só preciso
+  saber onde vai o repositório (P25) — sugiro ~/Projects/ipa como raiz, com
+  docs/ e app/ lado a lado.
+
+✻ Churned for 2m 54s
+※ recap: You're modeling a management system for Igreja Presbiteriana de Anápolis from the IPB constitution; modeling is done and the stack is set (Next.js, Neon, Vercel). Next: tell me whether I should scaffold the project, and where the repo goes.
