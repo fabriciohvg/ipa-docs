@@ -67,12 +67,13 @@ Importação **única e definitiva**, não recorrente. Isso permite:
 para cada linha:
     criar pessoa                                    → sempre (2.622)
     criar membro                                    → sempre (2.622)
-
-    se membro == 'Não membro':
-        membro.situacao  = DEMITIDO
-        membro.categoria = inferir(meio_admissao)   # §4.2
-        membro.pendencia_revisao = true  se não houver data/meio de demissão
+    membro.categoria = inferir(meio_admissao)       # §4.2, tambem p/ 'Não membro'
+    membro.situacao  = mapear(situacao)             # §4.3 — P12b, sem excecao
 ```
+
+> ⚠️ **Corrigido**: a versão anterior forçava `situacao = DEMITIDO` para todo `Não membro`, o que **contradizia a decisão P12b** ("`situacao` manda") em 23 registros marcados `Não membro` + `Ativo`.
+>
+> A regra agora é uniforme: `situacao` sempre vem da coluna `situacao`. Os 23 contraditórios entram como `ATIVO` e vão para a fila de revisão. Ver doc 17 §6.
 
 > Criar `Membro` para os 622 preserva `numero_ordem`, datas de admissão e o motivo de saída. Tratá-los como `Pessoa` pura descartaria o histórico de 385 números de rol — exatamente o que a decisão A2-a mandou preservar.
 
@@ -299,20 +300,24 @@ Registros com `meio_admissao` mas sem `data_admissao`. Criar `admissao` com `dat
 
 Se qualquer linha falhar → `ROLLBACK`.
 
+> ⚠️ **Quatro números desta tabela estavam errados e foram corrigidos após a execução real** (doc 17 §5). Eu havia simulado tratando os 622 `Não membro` como balde separado, sem inferência — mas o §4.2 manda inferir categoria para eles também. Valores abaixo já corrigidos e **conferidos contra a importação real**.
+
 | Verificação | Esperado |
 |---|---:|
 | `pessoa` | 2.622 |
 | `membro` | 2.622 |
-| `membro.categoria = COMUNGANTE` | 1.751 |
-| `membro.categoria = NAO_COMUNGANTE` | 161 |
-| `membro.categoria = NAO_DEFINIDO` | 88 |
-| `membro.categoria_inferida = true` | 466 |
+| `membro.categoria = COMUNGANTE` | **2.038** |
+| `membro.categoria = NAO_COMUNGANTE` | **166** |
+| `membro.categoria = NAO_DEFINIDO` | **418** |
+| `membro.categoria_inferida = true` | **758** |
 | `membro.situacao = ATIVO` | 1.876 |
 | `membro.situacao = DEMITIDO` | 746 |
+| `pessoa_contato` | 2.563 |
 | `admissao` | 2.178 |
 | `demissao` | 312 |
-| `ato_pastoral` (batismo) | 635 |
-| `ato_pastoral` (profissão de fé) | 641 |
+| `ato_pastoral` (batismo 635 + profissão 641) | 1.276 |
+| `participante_ato_pastoral` | 1.276 |
+| `vinculo_familiar` | 980 |
 | `oficio` total | 41 |
 | ↳ presbítero em exercício | 21 |
 | ↳ presbítero em disponibilidade | 13 |
@@ -321,6 +326,8 @@ Se qualquer linha falhar → `ROLLBACK`.
 | Linhas sem correspondência | **0** |
 
 **A regra de ouro**: `count(pessoa) == 2.622`. Qualquer linha perdida em silêncio invalida a importação.
+
+**Implementação**: `docs/import/importar_rol.py`, executado e validado — ver doc 17.
 
 ---
 

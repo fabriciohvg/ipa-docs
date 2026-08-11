@@ -28,11 +28,13 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 13 | `13-spec-importador.md` | Algoritmo completo da migração | Para implementar o importador |
 | 14 | `14-decisao-stack-tecnica.md` | Escolha da stack + decisões técnicas fixas | Histórico da decisão |
 | 15 | `15-setup-implementacao.md` | Setup Next + Neon + Vercel, armadilhas e ordem da 1ª semana | Ao começar a codar |
-| 16 | `16-auditoria-sql.md` | **Auditoria do SQL + migrations testadas** | **Antes de rodar as migrations** |
+| 16 | `16-auditoria-sql.md` | Auditoria do SQL + migrations testadas | Antes de rodar as migrations |
+| 17 | `17-importador-construido.md` | **Importador executado: números reais e filas geradas** | **Antes de importar** |
 
 ### Executáveis
 
 - **`sql/0001…0012.sql`** — as 12 migrations, aplicadas e testadas em PostgreSQL 17. **É a fonte da verdade do schema** (o doc 10 virou explicação).
+- **`import/importar_rol.py`** — importador do rol, executado contra o CSV real e o schema real. Modos `--validar` e `--importar`.
 
 ### Insumos
 
@@ -55,28 +57,38 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 - [x] **Modelagem encerrada** — fases 1 a 6 do roadmap fechadas
 - [x] **Stack escolhida**: Next.js + TypeScript · Postgres no Neon · Vercel
 - [x] **Migrations escritas, auditadas e testadas** em PostgreSQL 17 (`sql/`, doc 16)
+- [x] **Migrations aplicadas no Neon** ✔
+- [x] **Importador construído e executado** contra o CSV real (`import/`, doc 17)
+- [ ] **Você**: rodar o importador numa branch do Neon e conferir os números
 - [ ] **Você**: P24–P26 (doc 15 §11) — fotos, repositório, scaffold
-- [ ] Rodar as migrations no Neon → importador → rol → fila de revisão
+- [ ] Tela de rol + busca → fila de revisão → **secretaria usa**
 
-## Números da importação (simulados com as regras já decididas)
+## Números da importação (medidos em execução real, doc 17)
 
 **2.622 pessoas · 2.622 membros**
-1.751 comungantes · 161 não comungantes · 88 sem categoria definida · 466 com categoria inferida
-1.876 ativos · 746 demitidos
-2.178 admissões · 312 demissões · 1.276 atos pastorais · 41 ofícios (21 presbíteros, 13 em disponibilidade, 7 diáconos)
+2.038 comungantes · 166 não comungantes · 418 sem categoria · 758 com categoria inferida
+1.876 ativos · 746 demitidos · **1.644 em plena comunhão**
+2.178 admissões · 312 demissões · 1.276 atos pastorais · 980 vínculos familiares
+41 ofícios: 21 presbíteros em exercício, 13 em disponibilidade, 7 diáconos
 
-**Filas de revisão geradas**: ~1.500 itens. Não é sinal de importação ruim — é o estado real do rol ficando visível pela primeira vez.
+**Filas de revisão**: 1.588 pessoas, 3.164 itens. Não é sinal de importação ruim — é o estado real do rol ficando visível pela primeira vez.
 
 ## Próxima ação (uma só)
 
-Crie o projeto no Neon e rode `sql/0001…0012.sql` na ordem — pelo console ou por `psql` (doc 16 §6). São 12 arquivos já testados; leva minutos.
+Rode o importador **numa branch do Neon** e confira os números acima:
 
-Depois disso, responda **P26** (doc 15 §11) se quiser que eu faça o scaffold do Next e escreva o importador.
+```bash
+pip install -r import/requirements.txt
+python import/importar_rol.py --csv membros_rows.csv --validar
+python import/importar_rol.py --csv membros_rows.csv --dsn "$DATABASE_URL_UNPOOLED" --importar
+```
+
+Depois: **P25/P26** (doc 15 §11) se quiser que eu faça o scaffold do Next e as primeiras telas.
 
 ```
-migrations no Neon → importador → tela de rol → fila de revisão
-                                                      ↓
-                                      ▶ A SECRETARIA COMEÇA A USAR
+importar → tela de rol + busca → fila de revisão
+                                        ↓
+                        ▶ A SECRETARIA COMEÇA A USAR
 ```
 
 ⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exportação definitiva. Todo cadastro feito no sistema antigo a partir de agora se perde na virada — combine isso com a secretaria hoje, não na véspera.
