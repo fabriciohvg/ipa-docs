@@ -139,18 +139,27 @@ CREATE INDEX pessoa_nome_busca ON pessoa
   USING gin (f_unaccent(lower(nome_completo)) gin_trgm_ops);
 ```
 
-Consulta correspondente:
+Consulta correspondente — ⚠️ **corrigida no doc 16 §3 após teste real**:
 
 ```sql
-SELECT * FROM pessoa
+-- ERRADO (o que eu havia escrito): exige substring contigua.
+-- "jose silva" NAO acha "José da Silva", porque o "da" quebra a sequencia.
+-- Testado: retorna 0 linhas.
 WHERE f_unaccent(lower(nome_completo)) LIKE '%' || f_unaccent(lower($1)) || '%'
+
+-- CERTO: um LIKE por palavra digitada, unidos por AND
+SELECT * FROM pessoa
+WHERE f_unaccent(lower(nome_completo)) LIKE '%jose%'
+  AND f_unaccent(lower(nome_completo)) LIKE '%silv%'
 ORDER BY nome_completo
 LIMIT 50;
 ```
 
-> **Correção ao doc 10**: eu havia especificado `gin (to_tsvector('portuguese', nome_completo))`. Funciona para busca por palavra inteira, mas **não** para trecho parcial ("silv" não acha "Silva"). Para busca de pessoa por nome, **trigram é a escolha certa** — e ela resolve acento e digitação parcial de uma vez. Substitua o índice do doc 10 §3 por este.
+A aplicação quebra o termo digitado em palavras e monta um `LIKE` para cada uma.
 
-Confirme que o Neon permite `CREATE EXTENSION unaccent` e `pg_trgm` no seu plano — ambas são extensões comuns e suportadas, mas vale testar na primeira migration antes de escrever o resto.
+> **Correção ao doc 10**: eu havia especificado `gin (to_tsvector('portuguese', nome_completo))`. Funciona para palavra inteira, mas não para trecho parcial ("silv" não acha "Silva"). Trigram resolve acento e digitação parcial de uma vez. Já corrigido em `sql/0003_pessoa.sql`.
+
+✅ **`unaccent`, `pg_trgm` e `citext` foram testadas** em PostgreSQL 17 — as três criam sem problema. O `citext` era necessário e estava faltando no doc 10 (doc 16 §2.2).
 
 ---
 

@@ -1,8 +1,14 @@
 # 10 — Schema do banco de dados (MVP)
 
-Tradução do modelo v2 (doc 04) para tabelas. Cobre o MVP: **E1 (rol) + E2 (oficialato/Conselho) + E3 (atos pastorais/relatórios)**.
+> ## ⚠️ Este documento explica; `docs/sql/` executa
+>
+> O SQL abaixo foi auditado, corrigido e **testado em PostgreSQL 17** — os arquivos executáveis finais estão em **`docs/sql/0001…0012.sql`**, com o relatório da auditoria no **doc 16**.
+>
+> **Quatro erros aqui quebrariam a execução** (função `f_unaccent` só em comentário, extensão `citext` ausente, view referenciando tabelas inexistentes, dependência circular com `organizacao_interna`), além de ~12 correções silenciosas. Todos resolvidos em `sql/`.
+>
+> Use este doc para entender **por que** cada tabela existe e qual artigo ela traduz. Para rodar, use `sql/`. Onde divergirem, vale `sql/`.
 
-**DDL em PostgreSQL** por ser o rendering mais legível — a stack ainda não está decidida (doc 07, C8) e nada aqui depende de Postgres além de `citext` e dos tipos `date`/`numeric`. Portar para MySQL ou SQLite é troca de tipos.
+Tradução do modelo v3 (doc 04) para tabelas. Cobre o MVP: **E1 (rol) + E2 (oficialato/Conselho) + E3 (atos pastorais/relatórios)**.
 
 **Convenções**
 - `snake_case` em português (decisão B6-a). Sem acentos e sem cedilha em identificadores.

@@ -27,7 +27,12 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 12 | `12-perfil-dados-csv.md` | Perfil medido dos 2.622 registros reais | Fonte da verdade sobre os dados |
 | 13 | `13-spec-importador.md` | Algoritmo completo da migração | Para implementar o importador |
 | 14 | `14-decisao-stack-tecnica.md` | Escolha da stack + decisões técnicas fixas | Histórico da decisão |
-| 15 | `15-setup-implementacao.md` | **Setup Next + Neon + Vercel, armadilhas e ordem da 1ª semana** | **Ao começar a codar** |
+| 15 | `15-setup-implementacao.md` | Setup Next + Neon + Vercel, armadilhas e ordem da 1ª semana | Ao começar a codar |
+| 16 | `16-auditoria-sql.md` | **Auditoria do SQL + migrations testadas** | **Antes de rodar as migrations** |
+
+### Executáveis
+
+- **`sql/0001…0012.sql`** — as 12 migrations, aplicadas e testadas em PostgreSQL 17. **É a fonte da verdade do schema** (o doc 10 virou explicação).
 
 ### Insumos
 
@@ -49,8 +54,9 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 - [x] **P11–P20 respondidas · importador especificado e simulado**
 - [x] **Modelagem encerrada** — fases 1 a 6 do roadmap fechadas
 - [x] **Stack escolhida**: Next.js + TypeScript · Postgres no Neon · Vercel
+- [x] **Migrations escritas, auditadas e testadas** em PostgreSQL 17 (`sql/`, doc 16)
 - [ ] **Você**: P24–P26 (doc 15 §11) — fotos, repositório, scaffold
-- [ ] Implementar E1 (migrations → importador → rol → fila de revisão)
+- [ ] Rodar as migrations no Neon → importador → rol → fila de revisão
 
 ## Números da importação (simulados com as regras já decididas)
 
@@ -63,14 +69,14 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 
 ## Próxima ação (uma só)
 
-Responda **P26** no doc 15: quer que eu faça o scaffold do projeto?
+Crie o projeto no Neon e rode `sql/0001…0012.sql` na ordem — pelo console ou por `psql` (doc 16 §6). São 12 arquivos já testados; leva minutos.
 
-Se sim, eu crio o Next, configuro Drizzle e Neon, escrevo as migrations `0001`–`0004` a partir do doc 10 e o script de perfilagem — deixando pronto para o primeiro `drizzle-kit migrate`.
+Depois disso, responda **P26** (doc 15 §11) se quiser que eu faça o scaffold do Next e escreva o importador.
 
 ```
-scaffold → migrations → importador → tela de rol → fila de revisão
-                                                        ↓
-                                        ▶ A SECRETARIA COMEÇA A USAR
+migrations no Neon → importador → tela de rol → fila de revisão
+                                                      ↓
+                                      ▶ A SECRETARIA COMEÇA A USAR
 ```
 
 ⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exportação definitiva. Todo cadastro feito no sistema antigo a partir de agora se perde na virada — combine isso com a secretaria hoje, não na véspera.
