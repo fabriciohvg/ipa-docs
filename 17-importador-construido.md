@@ -38,7 +38,32 @@ python import/importar_rol.py --csv membros_rows.csv \
 **Salvaguardas embutidas:**
 - Cabeçalho diferente das 40 colunas → aborta antes de qualquer processamento.
 - Valor categórico desconhecido em `membro`/`oficial`/`situacao`/`meio_admissao`/`meio_demissao` → **bloqueante**. Se alguém cadastrou algo novo no sistema antigo depois de 10/08, você fica sabendo em vez de importar lixo.
+- **Banco já populado → recusa rodar**, listando o que existe e como proceder.
 - Conferência de contagens roda **antes** do `COMMIT`; divergiu, `ROLLBACK`.
+
+### Reimportar
+
+O importador roda uma vez (doc 13 §2). Rodando de novo em banco populado, ele para e explica:
+
+```
+>> BANCO JA POPULADO. Nada foi feito.
+     pessoa                         2622 registros
+     membro                         2622 registros
+     ...
+```
+
+Para recarregar de verdade — por exemplo depois da migration `0013`:
+
+```bash
+python import/importar_rol.py --csv membros_rows.csv \
+       --dsn "$DATABASE_URL_UNPOOLED" --importar --limpar
+```
+
+`--limpar` faz `TRUNCATE ... CASCADE` nas 9 tabelas do importador, dentro da mesma transação. O CASCADE alcança qualquer outra tabela que as referencie (`reuniao`, `eleicao`, `presenca`…).
+
+⚠️ **Seguro apenas enquanto o banco tiver só dados de importação.** Depois que a secretaria começar a registrar atas e resoluções, `--limpar` passa a destruir dado real e insubstituível. A partir da Entrega C do doc 18, correções são feitas pela tela.
+
+Sem `--limpar`, mesmo que a checagem falhasse, a `UNIQUE` em `pessoa.id_legado` barraria a duplicação e o `ROLLBACK` deixaria o banco intacto — foi o que aconteceu na primeira tentativa de reimportação.
 
 ---
 

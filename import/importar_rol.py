@@ -89,6 +89,12 @@ COLUNAS_ESPERADAS = [
     "created_at", "updated_at", "ata", "notes", "profissao_informada",
 ]
 
+# tabelas que o importador escreve — usadas pela checagem de banco vazio e por --limpar
+TABELAS_IMPORTADAS = [
+    "participante_ato_pastoral", "ato_pastoral", "vinculo_familiar",
+    "pessoa_contato", "admissao", "demissao", "oficio", "membro", "pessoa",
+]
+
 # descartadas por instrucao do usuario (doc 12 §4)
 DESCARTADAS = {"id_igreja", "profissao_informada", "updated_at", "created_at"}
 
@@ -354,10 +360,14 @@ def transformar(linhas: list[dict]) -> dict:
             admissoes.append({
                 "membro_id": membro_id,
                 "data": d_adm,
+                # `forma` e NOT NULL. Quando o legado nao registrou, arbitramos a
+                # forma dominante e MARCAMOS — sem forma_arbitrada, essas 8 linhas
+                # ficariam indistinguiveis de uma jurisdicao a pedido real.
                 "forma": MEIO_ADMISSAO.get(v_meio_adm) or "JURISDICAO_A_PEDIDO",
+                "forma_arbitrada": not v_meio_adm,
+                "observacoes": None if v_meio_adm else "forma nao registrada no legado",
                 "igreja_origem_nome": (g(linha, "igreja_profissao_fe")
                                        or g(linha, "igreja_batismo") or None),
-                "forma_ausente": not v_meio_adm,
             })
 
         # ---------- demissao: so com data (doc 13 §6.1)
@@ -366,6 +376,7 @@ def transformar(linhas: list[dict]) -> dict:
                 "membro_id": membro_id,
                 "data": d_dem,
                 "forma": MEIO_DEMISSAO.get(v_meio_dem) or "EXCLUSAO_A_PEDIDO",
+                "forma_arbitrada": not v_meio_dem,
                 "motivo": None if v_meio_dem else "forma nao registrada no legado",
             })
             if not v_meio_dem:
@@ -442,7 +453,9 @@ def transformar(linhas: list[dict]) -> dict:
     for p in pessoas:
         for coluna, valor in textos_pessoa.get(p["id"], {}).items():
             p[coluna] = valor
-        p["pendencia_revisao"] = bool(pend.por_pessoa.get(p["id"]))
+        motivos = sorted(pend.por_pessoa.get(p["id"], ()))
+        p["pendencia_motivos"] = motivos
+        p["pendencia_revisao"] = bool(motivos)
     for m in membros:
         m["pendencia_revisao"] = bool(pend.por_pessoa.get(m["pessoa_id"]))
 
@@ -464,13 +477,14 @@ def gravar(conn: psycopg.Connection, d: dict) -> None:
              naturalidade, estado_civil, logradouro, complemento, bairro, cidade, cep,
              profissao, escolaridade, nome_pai_texto, nome_mae_texto, nome_conjuge_texto,
              data_casamento, data_falecimento, foto_url, observacoes, pendencia_revisao,
-             id_legado)
+             pendencia_motivos, id_legado)
            VALUES (%(id)s, %(nome_completo)s, %(data_nascimento)s, %(sexo)s,
              %(sexo_inferido)s, %(naturalidade)s, %(estado_civil)s, %(logradouro)s,
              %(complemento)s, %(bairro)s, %(cidade)s, %(cep)s, %(profissao)s,
              %(escolaridade)s, %(nome_pai_texto)s, %(nome_mae_texto)s,
              %(nome_conjuge_texto)s, %(data_casamento)s, %(data_falecimento)s,
-             %(foto_url)s, %(observacoes)s, %(pendencia_revisao)s, %(id_legado)s)""",
+             %(foto_url)s, %(observacoes)s, %(pendencia_revisao)s,
+             %(pendencia_motivos)s, %(id_legado)s)""",
         [{**{c: None for c in ("nome_pai_texto", "nome_mae_texto", "nome_conjuge_texto")},
           **p} for p in d["pessoas"]])
 
@@ -488,13 +502,16 @@ def gravar(conn: psycopg.Connection, d: dict) -> None:
              %(ata_admissao_legado)s, %(id_legado)s)""", d["membros"])
 
     cur.executemany(
-        """INSERT INTO admissao (membro_id, data, forma, igreja_origem_nome, origem_migracao)
-           VALUES (%(membro_id)s, %(data)s, %(forma)s, %(igreja_origem_nome)s, true)""",
-        [{k: v for k, v in a.items() if k != "forma_ausente"} for a in d["admissoes"]])
+        """INSERT INTO admissao (membro_id, data, forma, forma_arbitrada, observacoes,
+             igreja_origem_nome, origem_migracao)
+           VALUES (%(membro_id)s, %(data)s, %(forma)s, %(forma_arbitrada)s,
+             %(observacoes)s, %(igreja_origem_nome)s, true)""", d["admissoes"])
 
     cur.executemany(
-        """INSERT INTO demissao (membro_id, data, forma, motivo, origem_migracao)
-           VALUES (%(membro_id)s, %(data)s, %(forma)s, %(motivo)s, true)""", d["demissoes"])
+        """INSERT INTO demissao (membro_id, data, forma, forma_arbitrada, motivo,
+             origem_migracao)
+           VALUES (%(membro_id)s, %(data)s, %(forma)s, %(forma_arbitrada)s,
+             %(motivo)s, true)""", d["demissoes"])
 
     cur.executemany(
         """INSERT INTO oficio (pessoa_id, tipo, situacao, origem_migracao)
@@ -514,6 +531,30 @@ def gravar(conn: psycopg.Connection, d: dict) -> None:
         """INSERT INTO vinculo_familiar (pessoa_id, relacionado_id, tipo)
            VALUES (%(pessoa_id)s, %(relacionado_id)s, %(tipo)s)
            ON CONFLICT DO NOTHING""", d["vinculos"])
+
+
+def banco_ja_populado(conn: psycopg.Connection) -> dict[str, int]:
+    """Conta o que ja existe nas tabelas que este script escreve."""
+    cur = conn.cursor()
+    existente = {}
+    for tabela in TABELAS_IMPORTADAS:
+        n = cur.execute(f"SELECT count(*) FROM {tabela}").fetchone()[0]
+        if n:
+            existente[tabela] = n
+    return existente
+
+
+def limpar(conn: psycopg.Connection) -> None:
+    """
+    Zera as tabelas do importador. TRUNCATE ... CASCADE porque as FKs entre elas
+    sao circulares na pratica (admissao -> ato_pastoral -> pessoa).
+
+    CASCADE tambem esvazia qualquer OUTRA tabela que referencie estas — reuniao,
+    eleicao, presenca etc. Isso e seguro enquanto so houver dados de importacao,
+    que e o caso ate a Entrega C do doc 18. Depois disso, NAO use --limpar:
+    reimportar passa a destruir atas e resolucoes de verdade.
+    """
+    conn.cursor().execute(f"TRUNCATE {', '.join(TABELAS_IMPORTADAS)} CASCADE")
 
 
 def conferir(conn: psycopg.Connection, d: dict) -> list[tuple[str, int, int]]:
@@ -586,6 +627,8 @@ def main() -> int:
     modo = ap.add_mutually_exclusive_group(required=True)
     modo.add_argument("--validar", action="store_true", help="nao escreve nada")
     modo.add_argument("--importar", action="store_true", help="grava numa transacao unica")
+    ap.add_argument("--limpar", action="store_true",
+                    help="APAGA os dados de importacao antes de gravar (reimportacao)")
     args = ap.parse_args()
 
     linhas = ler_csv(args.csv)
@@ -613,7 +656,22 @@ def main() -> int:
         return 1
 
     with psycopg.connect(args.dsn) as conn:
+        existente = banco_ja_populado(conn)
+        if existente and not args.limpar:
+            print("\n>> BANCO JA POPULADO. Nada foi feito.")
+            for tabela, n in existente.items():
+                print(f"     {tabela:28s} {n:6d} registros")
+            print("\n   Este importador roda UMA vez (doc 13 §2). Para reimportar:")
+            print("     1. crie uma branch do Neon (doc 15 §6), ou")
+            print("     2. rode de novo com --limpar para apagar e recarregar.")
+            print("\n   --limpar so e seguro enquanto o banco tiver apenas dados de")
+            print("   importacao. Depois que houver atas e resolucoes, ele destroi.")
+            return 1
+
         try:
+            if args.limpar and existente:
+                limpar(conn)
+                print(f"\nTabelas zeradas: {', '.join(existente)}")
             gravar(conn, d)
             falhas = conferir(conn, d)
             if falhas:

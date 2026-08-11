@@ -29,12 +29,14 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 | 14 | `14-decisao-stack-tecnica.md` | Escolha da stack + decisões técnicas fixas | Histórico da decisão |
 | 15 | `15-setup-implementacao.md` | Setup Next + Neon + Vercel, armadilhas e ordem da 1ª semana | Ao começar a codar |
 | 16 | `16-auditoria-sql.md` | Auditoria do SQL + migrations testadas | Antes de rodar as migrations |
-| 17 | `17-importador-construido.md` | **Importador executado: números reais e filas geradas** | **Antes de importar** |
+| 17 | `17-importador-construido.md` | Importador executado: números reais e filas geradas | Antes de importar |
+| 18 | `18-plano-de-telas.md` | **Plano de 14 passos para as telas** | **Agora — é o que vira código** |
 
 ### Executáveis
 
 - **`sql/0001…0012.sql`** — as 12 migrations, aplicadas e testadas em PostgreSQL 17. **É a fonte da verdade do schema** (o doc 10 virou explicação).
 - **`import/importar_rol.py`** — importador do rol, executado contra o CSV real e o schema real. Modos `--validar` e `--importar`.
+- **`sql/0013_pendencia_motivos.sql`** — ⚠️ migration nova: grava os 15 motivos de pendência e marca formas arbitradas. Rode antes das telas (doc 18, passo 0).
 
 ### Insumos
 
@@ -59,9 +61,13 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 - [x] **Migrations escritas, auditadas e testadas** em PostgreSQL 17 (`sql/`, doc 16)
 - [x] **Migrations aplicadas no Neon** ✔
 - [x] **Importador construído e executado** contra o CSV real (`import/`, doc 17)
-- [ ] **Você**: rodar o importador numa branch do Neon e conferir os números
-- [ ] **Você**: P24–P26 (doc 15 §11) — fotos, repositório, scaffold
-- [ ] Tela de rol + busca → fila de revisão → **secretaria usa**
+- [x] **Importado no Neon com os dados reais** ✔
+- [x] **Repo Next.js configurado** (shadcn, Tailwind, Drizzle + pull) — P25/P26 resolvidas na prática
+- [ ] **Você**: passo 0 do doc 18 — migration `0013` + reimportar + `drizzle-kit pull`
+- [ ] Entrega A (passos 1–6): rol navegável → mostrar ao Conselho
+- [ ] Entrega B (7–8): secretaria trabalha as pendências
+- [ ] Entrega C (9–14): admissões, demissões e relatório saem do sistema
+- [ ] Pendente: P24 (onde ficam as 900 fotos)
 
 ## Números da importação (medidos em execução real, doc 17)
 
@@ -75,20 +81,22 @@ Mapa dos documentos de modelagem do sistema de gestão da **Igreja Presbiteriana
 
 ## Próxima ação (uma só)
 
-Rode o importador **numa branch do Neon** e confira os números acima:
+**Passo 0 do doc 18**, numa branch do Neon — 10 minutos:
 
 ```bash
-pip install -r import/requirements.txt
-python import/importar_rol.py --csv membros_rows.csv --validar
+psql "$DATABASE_URL_UNPOOLED" -f sql/0013_pendencia_motivos.sql
 python import/importar_rol.py --csv membros_rows.csv --dsn "$DATABASE_URL_UNPOOLED" --importar
+npx drizzle-kit pull
 ```
 
-Depois: **P25/P26** (doc 15 §11) se quiser que eu faça o scaffold do Next e as primeiras telas.
+Sem isso, a tela de fila de revisão não consegue mostrar *por que* cada pessoa precisa de revisão.
+
+Depois: doc 18, passos 1 a 6 (Entrega A).
 
 ```
-importar → tela de rol + busca → fila de revisão
-                                        ↓
-                        ▶ A SECRETARIA COMEÇA A USAR
+passo 0 → rol navegável → fila de revisão → secretaria limpa os dados
+                                                     ↓
+                                     ▶ A PLANILHA VIRA HISTÓRICO
 ```
 
 ⚠️ **Aviso operacional (P20)**: o CSV de 10/08/2026 é a exportação definitiva. Todo cadastro feito no sistema antigo a partir de agora se perde na virada — combine isso com a secretaria hoje, não na véspera.
