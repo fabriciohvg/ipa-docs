@@ -86,6 +86,30 @@ npx drizzle-kit pull
 
 Assim o SQL do doc 10 entra **verbatim**, sem tradução, e o TypeScript vem depois — refletindo o que existe de fato. Se um dia divergirem, o banco ganha.
 
+### Posso colar o SQL no SQL Editor do console do Neon?
+
+**Pode** — a regra do doc 14 §7 é sobre **onde o SQL mora**, não sobre como ele é aplicado.
+
+O que não pode é o banco ter um estado que nenhum arquivo do repositório descreve. Isso custaria: recriar o banco do zero (inclusive numa branch limpa para testar a importação, §6), saber quando e por que cada mudança entrou, e um `drizzle-kit pull` gerando TypeScript a partir de um estado irreproduzível.
+
+**Se o arquivo `.sql` está no repositório e o banco corresponde a ele, tanto faz o meio.** Para a carga inicial das 12 migrations, colar no console é aceitável.
+
+O console é inclusive **melhor** para o teste que o §5 pede antes de tudo:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+SELECT unaccent('José da Silva');
+```
+
+Três cuidados ao usar o console:
+
+1. **Confira a branch selecionada** — o editor executa contra a branch ativa, e você vai ter várias ao testar a importação.
+2. **Um arquivo por vez, na ordem.** Se um statement falhar no meio de um bloco grande, sobra estado parcial sem mensagem clara.
+3. **Depois de aplicar tudo, rode `drizzle-kit pull`** na conexão direta — independe de como o DDL entrou.
+
+**A partir do momento em que o app estiver na Vercel e a secretaria usando**, migre para `drizzle-kit migrate`. Aí alterar schema pelo console vira risco real: deploy e banco podem divergir sem ninguém notar.
+
 Configure `drizzle.config.ts` com `dialect: 'postgresql'` e a URL **direta**.
 
 ---
